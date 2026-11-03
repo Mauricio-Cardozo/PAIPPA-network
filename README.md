@@ -9,6 +9,10 @@ Trabajo Final Integrador · Tecnicatura Universitaria en Programación · UTN FR
 
 Laravel 13 · PHP 8.3 o superior (desarrollo en 8.5) · MySQL 8.4 · Breeze (Blade) · Tailwind · Vite
 
+## Estado
+
+Proyecto base creado con Laravel 13, Breeze (Blade), Sail y CI en PHP 8.3 y 8.5.
+
 ## Requisitos
 
 - Git
