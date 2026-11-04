@@ -58,11 +58,11 @@ OpenCode puede ayudar a **redactar** el manual técnico y el README a partir del
 | `productos` | `categoria_id` (restrict) · `nombre` · `unidad` (por defecto «caja») · `descripcion` nullable · soft deletes | pertenece a `categoria` |
 | `ofertas` | `feriante_id` · `producto_id` · `punto_retiro_id` · `precio_caja` decimal(10,2) · `cajas_disponibles` unsigned · `vigente_desde` date · `vigente_hasta` date · soft deletes | pertenece a `feriante`, `producto` y `punto_retiro` |
 | `clics_whatsapp` | `user_id` · `feriante_id` · `oferta_id` nullable · `created_at` | sin contenido del mensaje; se borra a los 12 meses |
-| `consultas_producto` | `producto_id` · `user_id` nullable · `origen` (`busqueda`, `whatsapp`) · `created_at` | para HU15 |
+| `consultas_producto` | `producto_id` · `user_id` nullable · `visitante` (user_id o hash del id de sesión) · `origen` (`busqueda`, `whatsapp`) · `fecha` date · `created_at` | para HU15; único (`producto_id`, `origen`, `visitante`, `fecha`) |
 | `conversaciones` (HU12, opcional) | `revendedor_id` (FK `users`) · `feriante_id` | tiene muchos `mensajes` |
 | `mensajes` (HU12, opcional) | `conversacion_id` · `user_id` (remitente) · `cuerpo` · `leido_at` nullable | |
 
-**Únicos:** `categorias.nombre` y `ferias.nombre` son únicos solo entre los registros activos: validar con `Rule::unique(...)->withoutTrashed()`. Ojo: `unique(['nombre', 'deleted_at'])` **no** alcanza en MySQL/SQLite, porque los `NULL` se consideran distintos y permiten duplicados activos. Si se quiere reforzar en la base, agregar una columna generada `activo` (`1` en activos, `NULL` en dados de baja) y `unique(['nombre', 'activo'])`. `conversaciones` tiene un único par (`revendedor_id`, `feriante_id`).
+**Únicos:** `categorias.nombre` y `ferias.nombre` son únicos solo entre los registros activos: validar con `Rule::unique(...)->withoutTrashed()`. Ojo: `unique(['nombre', 'deleted_at'])` **no** alcanza en MySQL/SQLite, porque los `NULL` se consideran distintos y permiten duplicados activos. Si se quiere reforzar en la base, agregar una columna generada `activo` con `virtualAs('CASE WHEN deleted_at IS NULL THEN 1 END')` (definirla después de `deleted_at`), que da `1` en activos y `NULL` en dados de baja, y `unique(['nombre', 'activo'])`. La expresión `CASE` es portable a MySQL y SQLite; `IF()` solo funciona en MySQL. `conversaciones` tiene un único par (`revendedor_id`, `feriante_id`).
 
 **Política de cada clave foránea** (definida antes de migrar):
 
@@ -209,7 +209,7 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
 ### PAI-46 · Layout Blade base y menú según rol (tarea 3.1)
 - **Quién:** Apolo · **HU3** · **Depende de:** PAI-39 y los mockups (si no están, con el diseño de Breeze y se ajusta después)
 - **Hacer:**
-  - Un layout público (`x-layouts.publico`: encabezado, menú, pie) y el layout del panel admin (`x-layouts.admin`), a partir de los de Breeze.
+  - Un layout público (`x-layouts.publico`: encabezado, menú, pie) y el layout del panel admin (`x-layouts.admin`), a partir de los de Breeze. Son componentes anónimos en `resources/views/components/layouts/publico.blade.php` y `resources/views/components/layouts/admin.blade.php`, así `<x-layouts.publico>` y `<x-layouts.admin>` resuelven sin una clase de componente.
   - Componentes nuevos: `x-alerta` (mensajes flash), `x-boton`, `x-tarjeta` y `x-campo` (etiqueta, input y error).
   - Paleta y tipografía del mockup en `tailwind.config.js`.
   - Menú según el rol: el visitante ve «Ingresar» y «Registrarse», el revendedor «Catálogo», «Mapa» y su cuenta, y el admin el panel.
@@ -368,7 +368,7 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
 - **Quién:** Lucas · **HU12** · **Depende de:** el MVP probado
 - **Hacer:**
   - Migraciones y modelos `Conversacion` y `Mensaje`, con el único (`revendedor_id`, `feriante_id`).
-  - **Cuenta del feriante:** hoy ninguna tarea crea un usuario `rol = feriante` ni lo vincula con `feriantes.user_id`, y sin eso el feriante no puede responder. Incluir una acción del admin en el ABM de feriantes, «Crear cuenta», que crea el usuario, lo vincula y le manda el correo para elegir la contraseña (el de recuperación de Breeze).
+  - **Cuenta del feriante:** hoy ninguna tarea crea un usuario `rol = feriante` ni lo vincula con `feriantes.user_id`, y sin eso el feriante no puede responder. Incluir una acción del admin en el ABM de feriantes, «Crear cuenta», que pide el correo del feriante en el formulario (la tabla `feriantes` no tiene `email`), lo valida como único en `users` (`unique:users,email`), crea el usuario, lo vincula y le manda el correo para elegir la contraseña (el de recuperación de Breeze).
   - Solo un revendedor inicia una conversación con un feriante que tenga cuenta; el feriante responde.
   - Límite de 10 mensajes por hora por usuario con `RateLimiter`.
 - **Antes de empezar:** OpenCode pregunta si el MVP (HU1–HU7 y HU11) ya está mergeado y probado. Si no, no se hace.
@@ -413,9 +413,9 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
 ### PAI-89 · Registro de consultas por producto
 - **Quién:** Lucas · **HU15** · **Depende de:** PAI-64 y PAI-75
 - **Hacer:**
-  - Migración y modelo `ConsultaProducto`.
-  - Registrar con `origen = busqueda` cuando el catálogo se filtra por texto o categoría (un registro por producto distinto en la primera página de resultados, máximo 12), y con `origen = whatsapp` en cada clic de PAI-75.
-  - **Deduplicar:** como máximo una consulta por producto, por origen, por visitante (usuario o sesión) y por día. Si no, la tabla crece con cada recarga.
+  - Migración y modelo `ConsultaProducto` con `visitante` y `fecha` (date, con cast), además de `producto_id`, `user_id` nullable, `origen` y `created_at`. `visitante` guarda `user:{id}` para usuarios y `hash('sha256', session()->getId())` para invitados; nunca el id de sesión crudo.
+  - Un único `(producto_id, origen, visitante, fecha)`; `fecha` es `today()->toDateString()`.
+  - Registrar con `origen = busqueda` cuando el catálogo se filtra por texto o categoría (un registro por producto distinto en la primera página de resultados, máximo 12), y con `origen = whatsapp` en cada clic de PAI-75, usando `insertOrIgnore` para que un duplicado no rompa ni cuente dos veces.
   - `const UPDATED_AT = null;` en el modelo.
 - **Antes de empezar:** confirmar con la ERS qué cuenta como «consulta». Esta es una propuesta.
 
