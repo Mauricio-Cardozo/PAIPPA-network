@@ -116,10 +116,20 @@ Las pruebas usan SQLite en memoria y no necesitan MySQL. El workflow de GitHub A
 - `release/v0.x`: al cierre de cada sprint.
 - `hotfix/v1.0.x`: solo para errores en lo publicado.
 
-Configuración inicial de Git Flow:
+Se sigue el modelo de ramas de Git Flow con comandos de git comunes (no hace falta instalar `git-flow`). El merge siempre se hace por pull request en GitHub.
 
 ```bash
-git flow init      # Enter en todo y, en "Version tag prefix", escribir: v
+# nueva feature
+git switch develop && git pull
+git switch -c feature/PAI-xx-descripcion
+git push -u origin feature/PAI-xx-descripcion     # y abrir el PR a develop
+
+# cierre de sprint
+git switch develop && git pull
+git switch -c release/v0.1
+git push -u origin release/v0.1                   # PR a main; después del merge:
+git switch main && git pull && git tag v0.1 && git push origin v0.1
+# y un PR de main a develop si en la release hubo ajustes
 ```
 
 ## Commits
