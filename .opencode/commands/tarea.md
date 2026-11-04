@@ -1,9 +1,9 @@
 ---
-description: Implementa una subtarea de Jira según docs/plan-desarrollo.md (ej. /tarea PAI-35)
+description: Implementa una tarea de Jira según docs/plan-desarrollo.md (ej. /tarea PAI-35)
 agent: build
 ---
 
-Vas a implementar la subtarea de Jira **$1** del proyecto PAIPPA network.
+Vas a implementar la tarea de Jira **$1** del proyecto PAIPPA network.
 
 1. Leé `AGENTS.md` y la sección `### $1` de `docs/plan-desarrollo.md`. Si existen `docs/DER.*` o `docs/ERS.*`, leelos también: mandan sobre el plan. Si la sección no existe, frená y preguntá.
 2. Ejecutá `git branch --show-current` y `git status`. Si estás en `develop` o en `main`, o hay cambios sin commitear que no son de esta tarea, frená y decime qué hacer (por ejemplo, `git switch develop && git pull && git switch -c feature/$1-descripcion`).

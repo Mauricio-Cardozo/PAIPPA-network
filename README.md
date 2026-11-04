@@ -112,7 +112,7 @@ Las pruebas usan SQLite en memoria y no necesitan MySQL. El workflow de GitHub A
 
 - `main`: solo versiones entregadas, con tag (`v0.1`, `v0.2`, `v0.3`, `v1.0`).
 - `develop`: integración. Todo entra por pull request con la aprobación de otro integrante.
-- `feature/PAI-xx-nombre`: una por HU o subtarea, sale de `develop` y vuelve a `develop`.
+- `feature/PAI-xx-nombre`: una por HU o tarea, sale de `develop` y vuelve a `develop`.
 - `release/v0.x`: al cierre de cada sprint.
 - `hotfix/v1.0.x`: solo para errores en lo publicado.
 

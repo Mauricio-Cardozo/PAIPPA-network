@@ -1,6 +1,6 @@
 # Plan de desarrollo con OpenCode · PAIPPA network
 
-Este archivo es la especificación que lee OpenCode con `/tarea PAI-xx`. Hay una sección por subtarea de Jira, en el orden en que conviene hacerlas.
+Este archivo es la especificación que lee OpenCode con `/tarea PAI-xx`. Hay una sección por tarea de Jira, en el orden en que conviene hacerlas.
 
 ## Cómo se usa
 
@@ -12,11 +12,11 @@ opencode                                          # dentro: /models para elegir 
 ```
 No hace falta ejecutar `/init`: el `AGENTS.md` ya está escrito. Después de mergear este plan a `develop`, cerrá y volvé a abrir OpenCode para que cargue los comandos `/tarea`, `/revisar` y `/explicar`.
 
-### El ciclo de cada subtarea
+### El ciclo de cada tarea
 
 | Paso | Quién | Qué |
 |---|---|---|
-| 1 | Vos | En Jira, mover la subtarea a **En curso** |
+| 1 | Vos | En Jira, mover la tarea a **En curso** |
 | 2 | Vos | `git switch develop && git pull && git switch -c feature/PAI-xx-descripcion` |
 | 3 | Vos | En OpenCode: `/tarea PAI-xx` |
 | 4 | OpenCode | Muestra el plan y **espera tu OK**: leelo, corregilo o aprobalo |
@@ -25,7 +25,7 @@ No hace falta ejecutar `/init`: el `AGENTS.md` ya está escrito. Después de mer
 | 7 | Vos | `/revisar`: OpenCode revisa el diff contra las reglas, sin tocar nada |
 | 8 | Vos | Commit (OpenCode lo propone y vos aprobás) y `git push -u origin feature/PAI-xx-descripcion` |
 | 9 | Vos | Abrir el PR a `develop` con el texto que propuso. Lo aprueba otro integrante |
-| 10 | Vos | Merge, mover la subtarea a **Finalizado** en Jira y tildarla en la hoja |
+| 10 | Vos | Merge, mover la tarea a **Listo** en Jira y tildarla en la hoja |
 | 11 | Vos | `/explicar PAI-xx` para estudiarlo para la defensa |
 
 > **Importante:**
@@ -95,20 +95,20 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
 
 > **Antes de la primera tarea:**
 > - Este plan, el `AGENTS.md` y los comandos tienen que estar mergeados en `develop` (PR de PAI-29).
-> - El DER (PAI-18) congelado antes de PAI-53 y del esquema.
+> - El DER (PAI-18) congelado antes de PAI-53 y de PAI-134.
 > - Los mockups (PAI-25) antes de PAI-36 y PAI-46. Si no están, esas dos se hacen con el diseño de Breeze provisional y se ajustan después.
 >
-> **Camino crítico:** 35 → 39 → 46 → 54 → 48 → 49 → 57 → 58 · 53 → esquema → 56 → 57 · 74 → 75 → 76 → 60. Si PAI-46 no termina en el Sprint 1, PAI-54 no arranca y se cae el Sprint 2.
+> **Camino crítico:** 35 → 39 → 46 → 54 → 48 → 49 → 57 → 58 · 53 → 134 → 56 → 57 · 74 → 75 → 76 → 60. Si PAI-46 no termina en el Sprint 1, PAI-54 no arranca y se cae el Sprint 2.
 >
-> **Reparto del Sprint 1 (a confirmar en el grupo):** con lo que hay en Jira, Mauricio tiene 9 tareas, Lucas 1 y Apolo 2, y Mauricio queda como cuello de botella. La propuesta:
+> **Reparto del Sprint 1 (acordado):** Mauricio concentraba casi todo el Sprint 1 y era el cuello de botella; se repartió así:
 >
 > | Quién | Orden |
 > |---|---|
 > | Mauricio | PAI-35 → PAI-37 → PAI-39 → PAI-40 → PAI-43 → PAI-44 → PAI-45 |
-> | Lucas | PAI-41 (día 1) → PAI-53 → esquema |
+> | Lucas | PAI-41 (día 1) → PAI-53 → PAI-134 |
 > | Apolo | PAI-36 (después de PAI-37 y los mockups) → PAI-46 (después de PAI-39 y los mockups) |
 >
-> Si se acepta, cambiar la etiqueta y el responsable de PAI-53 y del esquema en Jira.
+> Jira ya refleja este reparto: PAI-53 y PAI-134 están asignadas a Lucas.
 
 ### PAI-35 · Migración de usuarios con rol
 - **Quién:** Mauricio · **HU1** · **Depende de:** nada
@@ -122,7 +122,7 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
 - **Pruebas:** `tests/Feature/RolUsuarioTest.php`.
 
 ### PAI-53 · Migraciones, modelos y seeders de productos y categorías
-- **Quién:** Mauricio (o Lucas, ver la nota del reparto) · **HU5** · **Depende de:** PAI-18 (DER)
+- **Quién:** Lucas · **HU5** · **Depende de:** PAI-18 (DER)
 - **Hacer:**
   - Migraciones de `categorias` y `productos`, según el modelo de datos.
   - Modelos `Categoria` y `Producto` con `$table`, `SoftDeletes`, relaciones y factories.
@@ -130,9 +130,9 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
 - **Criterios:** `migrate:fresh --seed` anda; `$categoria->productos` devuelve sus productos.
 - **Pruebas:** relaciones en `tests/Unit` o `tests/Feature/ModelosTest.php`.
 
-### PAI-xx (crear en Jira) · Esquema de ferias, puntos de retiro, feriantes y ofertas
-> No está en Jira. Corresponde a las tareas 2.1 y 2.2 del plan aprobado. Creá la subtarea dentro de HU4 (Mauricio, Sprint 1) y reemplazá `PAI-xx` por la clave real en este título y en las dependencias de PAI-48, PAI-56 y PAI-70. Es la tarea que desbloquea casi todo el Sprint 2.
-- **Quién:** Mauricio (o Lucas, ver la nota del reparto) · **HU4 y HU6** · **Depende de:** PAI-53 y PAI-18 (DER)
+### PAI-134 · Esquema de ferias, puntos de retiro, feriantes y ofertas
+> Tarea de la épica «Etapa 2 · Backend y base de datos», Sprint 1, con prioridad alta. Corresponde a las tareas 2.1 y 2.2 del plan aprobado y da soporte a HU4 y HU6. Es la tarea que desbloquea casi todo el Sprint 2.
+- **Quién:** Lucas · **HU4 y HU6** · **Depende de:** PAI-53 y PAI-18 (DER)
 - **Hacer:**
   - Migraciones de `ferias`, `puntos_retiro`, `feriantes` y `ofertas`, en ese orden, según el modelo de datos y la tabla de políticas de claves foráneas.
   - Modelos con `$table`, `SoftDeletes`, casts (`validado_at` datetime; `vigente_desde` y `vigente_hasta` date; `precio_caja` `decimal:2`) y todas las relaciones.
@@ -232,7 +232,7 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
 - **Nota:** este ABM es el **molde**. Los demás copian su estructura, así que conviene que quede muy prolijo y comentado.
 
 ### PAI-48 · ABM de ferias y puntos de retiro (con latitud y longitud)
-- **Quién:** Lucas · **HU4** · **Depende de:** PAI-xx (esquema) y PAI-54
+- **Quién:** Lucas · **HU4** · **Depende de:** PAI-134 (esquema) y PAI-54
 - **Hacer:**
   - Igual que el molde, para ferias y puntos de retiro.
   - El punto de retiro tiene un selector de feria, dirección, horario, latitud (entre -90 y 90) y longitud (entre -180 y 180).
@@ -250,7 +250,7 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
 - **Pruebas:** validar, invalidar y el teléfono con espacios, guiones y `+`.
 
 ### PAI-56 · Modelo de oferta y scope de vigentes
-- **Quién:** Mauricio · **HU6** · **Depende de:** PAI-xx (esquema)
+- **Quién:** Mauricio · **HU6** · **Depende de:** PAI-134 (esquema)
 - **Hacer:**
   - En `Oferta`, el scope `vigentes()` (hoy entre las fechas y `cajas_disponibles > 0`) y el scope `publicadas()` (vigentes, de feriante validado, y sin feriante, producto ni punto de retiro borrados).
   - El accessor `estado` (enum `EstadoOferta`: Publicada, Vencida, Sin stock, Feriante sin validar) con **las mismas reglas** que `publicadas()`, para que el panel y el catálogo nunca se contradigan.
@@ -346,7 +346,7 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
 - **Hacer:** datos del feriante, feria, puntos de retiro con su horario, sus ofertas (reusa `x-tarjeta-oferta`) y el botón de WhatsApp general.
 
 ### PAI-70 · Ruta que devuelve los puntos de retiro en JSON
-- **Quién:** Lucas · **HU10** · **Depende de:** PAI-xx (esquema)
+- **Quién:** Lucas · **HU10** · **Depende de:** PAI-134 (esquema)
 - **Hacer:** `GET /mapa/puntos` con un `PuntoRetiroResource` (`id`, `nombre`, `direccion`, `horario`, `latitud`, `longitud`, `feria` y la cantidad de ofertas publicadas).
 - **Pruebas:** la estructura del JSON y que no incluya puntos borrados.
 
