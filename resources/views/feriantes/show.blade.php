@@ -16,6 +16,15 @@
                     <x-boton-whatsapp :feriante="$feriante" />
                 </div>
 
+                {{-- HU12: mensaje interno, solo si el feriante tiene cuenta y el usuario es revendedor. --}}
+                @if ($feriante->tieneCuenta() && auth()->user()?->esRevendedor())
+                    <form method="POST" action="{{ route('mensajes.iniciar', $feriante) }}" class="mt-4">
+                        @csrf
+                        <x-campo nombre="cuerpo" etiqueta="O escribile por acá" tipo="textarea" required maxlength="1000" />
+                        <x-boton variante="secundario" class="w-full">Enviar mensaje</x-boton>
+                    </form>
+                @endif
+
                 <h2 class="mt-6 font-semibold text-gray-800">Puntos de retiro</h2>
                 <ul class="mt-2 space-y-2 text-sm text-gray-700">
                     @forelse ($feriante->feria->puntosRetiro as $punto)

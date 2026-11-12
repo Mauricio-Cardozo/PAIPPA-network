@@ -18,7 +18,7 @@ Laravel 13 · PHP 8.3 o superior (desarrollo en 8.5) · MySQL 8.4 · Breeze (Bla
 - **Registro e inicio de sesión** de revendedores, recuperación de contraseña y acceso por roles.
 - **Panel del administrador:** ABM de categorías, productos, ferias, puntos de retiro, feriantes (con validación) y ofertas (con actualización rápida de cantidad y vigencia), bloqueo de usuarios y estadísticas de uso.
 
-Pendiente y opcional: la mensajería interna (HU12).
+- **Mensajería interna** (HU12, opcional): el revendedor le escribe a un feriante con cuenta y el feriante responde desde su bandeja.
 
 Documentación: [manual técnico](docs/manual-tecnico.md) · [pruebas de seguridad](docs/pruebas/seguridad.md) · [rendimiento](docs/pruebas/rendimiento.md).
 

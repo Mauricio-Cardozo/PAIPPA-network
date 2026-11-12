@@ -40,7 +40,7 @@ Navegador ──► routes/web.php ──► Middleware ──► Controlador �
 |---|---|
 | Visitante (sin cuenta) | Ver el catálogo, el perfil de los feriantes y el mapa. No ve teléfonos. |
 | Revendedor | Lo mismo, más contactar a los feriantes por WhatsApp. Se registra solo. |
-| Feriante | Cuenta opcional (reservada para la mensajería interna, HU12). |
+| Feriante | Cuenta opcional que crea el admin («Crear cuenta»): lee y responde los mensajes internos (HU12). |
 | Administrador | El panel: ABM de todo, validación de feriantes, bloqueo de usuarios y estadísticas. Se crea desde el seeder o por la base. |
 
 El rol (`users.rol`, enum `App\Enums\Rol`) **no** es asignable en masa: el registro público siempre crea revendedores.
@@ -58,6 +58,8 @@ El rol (`users.rol`, enum `App\Enums\Rol`) **no** es asignable en masa: el regis
 | `ofertas` | Precio estimado, cantidad disponible y vigencia | pertenece a `feriante`, `producto` y `punto_retiro` |
 | `clics_whatsapp` | Interés de un revendedor (sin el texto del mensaje); se borra a los 12 meses | `user`, `feriante`, `oferta` |
 | `consultas_producto` | Productos buscados o contactados, una vez por visitante y día | `producto`, `user` |
+| `conversaciones` | Una por revendedor y feriante (HU12, opcional) | `revendedor` (user), `feriante` |
+| `mensajes` | Texto, remitente y `leido_at` | `conversacion`, `user` |
 
 **Regla central: una oferta está publicada** cuando hoy está entre `vigente_desde` y `vigente_hasta`, tiene cantidad disponible, su feriante está validado, y ni ella ni su feriante, producto o punto de retiro están dados de baja (`Oferta::publicadas()`). El estado del panel (`$oferta->estado`) usa exactamente las mismas reglas.
 
@@ -78,6 +80,8 @@ El rol (`users.rol`, enum `App\Enums\Rol`) **no** es asignable en masa: el regis
 | `PATCH /admin/feriantes/{id}/validar` e `invalidar` | Admin | Valida o invalida a un feriante |
 | `PATCH /admin/ofertas/{id}/stock` | Admin | Actualización rápida de cantidad y vigencia |
 | `/admin/usuarios` | Admin | Listado y bloqueo |
+| `/admin/feriantes/{id}/cuenta` | Admin | Crea la cuenta del feriante y le envía el correo para elegir la contraseña |
+| `/mensajes` y `/mensajes/{id}` | Con sesión | Bandeja y conversación (solo los participantes, `ConversacionPolicy`); 10 mensajes por hora |
 | `/admin/estadisticas` | Admin | Indicadores por rango de fechas |
 
 La lista completa: `./vendor/bin/sail artisan route:list --except-vendor`.
@@ -143,7 +147,7 @@ Corren en SQLite en memoria y no tocan la base local. Hay pruebas de cada criter
 
 ## 12. Pendientes conocidos
 
-- **HU12 (mensajería interna):** es opcional y no está implementada. El contacto del MVP es por WhatsApp.
+- **HU12 (mensajería interna):** es opcional y está en la rama `feature/hu12-mensajeria`. Se integra solo si el MVP está probado.
 - Los datos de los seeders son de **ejemplo**: se reemplazan por los reales del relevamiento con el PAIPPA (PAI-11).
 - Falta medir el rendimiento en MySQL (`docs/pruebas/rendimiento.md`).
 - Los feriantes no tienen cuenta propia: el administrador carga sus ofertas con los datos que ellos le pasan.
