@@ -2,21 +2,20 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\Rol;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegistroRequest;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
     /**
-     * Display the registration view.
+     * Muestra el formulario de registro.
      */
     public function create(): View
     {
@@ -24,23 +23,21 @@ class RegisteredUserController extends Controller
     }
 
     /**
-     * Handle an incoming registration request.
-     *
-     * @throws ValidationException
+     * Registra un revendedor nuevo.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(RegistroRequest $request): RedirectResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        $user = new User([
+            'name' => $request->validated('name'),
+            'email' => $request->validated('email'),
+            'telefono' => $request->validated('telefono'),
+            'password' => Hash::make($request->validated('password')),
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        // El rol se asigna en el código, nunca desde el formulario:
+        // el registro público siempre crea revendedores.
+        $user->rol = Rol::Revendedor;
+        $user->save();
 
         event(new Registered($user));
 
