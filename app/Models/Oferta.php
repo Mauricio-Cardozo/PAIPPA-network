@@ -99,6 +99,27 @@ class Oferta extends Model
     }
 
     /**
+     * Filtros del catálogo. Cada when() agrega la condición solo si el
+     * filtro vino. Todo va con bindings de Eloquent: nada de SQL concatenado.
+     *
+     * @param  array{q?: string, categoria?: int, feria?: int, precio_max?: float}  $filtros
+     */
+    public function scopeFiltrar(Builder $query, array $filtros): void
+    {
+        $query
+            ->when($filtros['q'] ?? null, fn (Builder $q, string $texto) => $q->whereHas(
+                'producto', fn (Builder $p) => $p->where('nombre', 'like', '%'.$texto.'%')
+            ))
+            ->when($filtros['categoria'] ?? null, fn (Builder $q, int $categoria) => $q->whereHas(
+                'producto', fn (Builder $p) => $p->where('categoria_id', $categoria)
+            ))
+            ->when($filtros['feria'] ?? null, fn (Builder $q, int $feria) => $q->whereHas(
+                'puntoRetiro', fn (Builder $p) => $p->where('feria_id', $feria)
+            ))
+            ->when($filtros['precio_max'] ?? null, fn (Builder $q, float $precio) => $q->where('precio_caja', '<=', $precio));
+    }
+
+    /**
      * Estado para mostrar en el panel. Usa las mismas reglas que publicadas().
      * Conviene cargar antes las relaciones con with() para evitar N+1.
      */
