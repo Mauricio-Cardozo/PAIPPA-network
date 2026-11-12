@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\FerianteController;
 use App\Http\Controllers\Admin\OfertaController;
 use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\PuntoRetiroController;
+use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\ContactoController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::view('/', 'catalogo.index')->name('catalogo');
+Route::get('/', [CatalogoController::class, 'index'])->name('catalogo');
 
 /*
 |--------------------------------------------------------------------------
