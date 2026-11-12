@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\FerianteController;
 use App\Http\Controllers\Admin\OfertaController;
 use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\PuntoRetiroController;
+use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\ContactoController;
 use App\Http\Controllers\FerianteController as PerfilFerianteController;
@@ -80,6 +81,10 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
 
         Route::resource('ofertas', OfertaController::class)->except('show');
         Route::patch('ofertas/{oferta}/stock', [OfertaController::class, 'stock'])->name('ofertas.stock');
+
+        Route::get('usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
+        Route::patch('usuarios/{usuario}/bloquear', [UsuarioController::class, 'bloquear'])->name('usuarios.bloquear');
+        Route::patch('usuarios/{usuario}/desbloquear', [UsuarioController::class, 'desbloquear'])->name('usuarios.desbloquear');
     });
 
 require __DIR__.'/auth.php';

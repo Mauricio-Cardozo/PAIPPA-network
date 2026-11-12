@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\CabecerasSeguridad;
 use App\Http\Middleware\SinCache;
+use App\Http\Middleware\UsuarioNoBloqueado;
 use App\Http\Middleware\VerificarRol;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -21,9 +22,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'sin-cache' => SinCache::class,
         ]);
 
-        // Cabeceras de seguridad en todas las respuestas web.
+        // Cabeceras de seguridad en todas las respuestas web
+        // y expulsión de los usuarios bloqueados que tenían la sesión abierta.
         $middleware->web(append: [
             CabecerasSeguridad::class,
+            UsuarioNoBloqueado::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -2,10 +2,12 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -41,6 +43,17 @@ class LoginRequest extends FormRequest
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
+
+        // Un usuario bloqueado no puede entrar. Se revisa ANTES de Auth::attempt
+        // (y solo si la contraseña es correcta, para no revelar qué cuentas existen),
+        // así no se llega a crear la sesión.
+        $user = User::where('email', $this->string('email'))->first();
+
+        if ($user !== null && $user->estaBloqueado() && Hash::check($this->string('password'), $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => trans('auth.blocked'),
+            ]);
+        }
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
