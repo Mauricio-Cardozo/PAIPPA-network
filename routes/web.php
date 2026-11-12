@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\FerianteController;
 use App\Http\Controllers\Admin\OfertaController;
 use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\PuntoRetiroController;
+use App\Http\Controllers\ContactoController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,16 @@ Route::middleware(['auth', 'sin-cache'])->group(function () {
             ? redirect()->route('admin.inicio')
             : redirect()->route('catalogo');
     })->name('dashboard');
+
+    // Contacto por WhatsApp: registra el clic y redirige a wa.me.
+    Route::get('/contacto/whatsapp/{oferta}', [ContactoController::class, 'oferta'])
+        ->whereNumber('oferta')
+        ->middleware('throttle:30,1')
+        ->name('contacto.whatsapp');
+    Route::get('/contacto/whatsapp/feriante/{feriante}', [ContactoController::class, 'feriante'])
+        ->whereNumber('feriante')
+        ->middleware('throttle:30,1')
+        ->name('contacto.whatsapp.feriante');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

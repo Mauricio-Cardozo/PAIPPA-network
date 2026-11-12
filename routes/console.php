@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+// Borra a diario los registros vencidos de los modelos Prunable
+// (los clics de WhatsApp de más de 12 meses, por la Ley 25.326).
+Schedule::command('model:prune')->daily();
