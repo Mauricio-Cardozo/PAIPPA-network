@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ClicWhatsapp;
+use App\Models\ConsultaProducto;
 use App\Models\Feriante;
 use App\Models\Oferta;
 use App\Support\WhatsApp;
@@ -23,6 +24,7 @@ class ContactoController extends Controller
         $oferta = Oferta::publicadas()->with(['feriante', 'producto', 'puntoRetiro'])->findOrFail($oferta);
 
         $this->registrarClic($request, $oferta->feriante, $oferta);
+        ConsultaProducto::registrar([$oferta->producto_id], ConsultaProducto::ORIGEN_WHATSAPP);
 
         return redirect()->away(WhatsApp::enlace($oferta->feriante, $oferta));
     }

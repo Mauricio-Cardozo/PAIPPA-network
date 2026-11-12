@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CatalogoRequest;
 use App\Models\Categoria;
+use App\Models\ConsultaProducto;
 use App\Models\Feria;
 use App\Models\Oferta;
 use Illuminate\View\View;
@@ -24,6 +25,12 @@ class CatalogoController extends Controller
             ->latest('updated_at')
             ->paginate(12)
             ->withQueryString();
+
+        // HU15: si se buscó por texto o categoría, se registra la consulta de cada
+        // producto distinto de la primera página de resultados.
+        if ((isset($filtros['q']) || isset($filtros['categoria'])) && $ofertas->onFirstPage()) {
+            ConsultaProducto::registrar($ofertas->getCollection()->pluck('producto_id'), ConsultaProducto::ORIGEN_BUSQUEDA);
+        }
 
         return view('catalogo.index', [
             'ofertas' => $ofertas,
