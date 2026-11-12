@@ -13,6 +13,7 @@ use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\ContactoController;
 use App\Http\Controllers\FerianteController as PerfilFerianteController;
 use App\Http\Controllers\MapaController;
+use App\Http\Controllers\MensajeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -52,6 +53,14 @@ Route::middleware(['auth', 'sin-cache'])->group(function () {
         ->middleware('throttle:30,1')
         ->name('contacto.whatsapp.feriante');
 
+    // Mensajería interna (HU12, opcional).
+    Route::get('/mensajes', [MensajeController::class, 'index'])->name('mensajes.index');
+    Route::get('/mensajes/{conversacion}', [MensajeController::class, 'show'])->name('mensajes.show');
+    Route::post('/mensajes/feriante/{feriante}', [MensajeController::class, 'iniciar'])
+        ->whereNumber('feriante')->middleware('throttle:mensajes')->name('mensajes.iniciar');
+    Route::post('/mensajes/{conversacion}', [MensajeController::class, 'responder'])
+        ->middleware('throttle:mensajes')->name('mensajes.responder');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -80,6 +89,8 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
         Route::resource('feriantes', FerianteController::class)->except('show');
         Route::patch('feriantes/{feriante}/validar', [FerianteController::class, 'validar'])->name('feriantes.validar');
         Route::patch('feriantes/{feriante}/invalidar', [FerianteController::class, 'invalidar'])->name('feriantes.invalidar');
+        Route::get('feriantes/{feriante}/cuenta', [FerianteController::class, 'cuenta'])->name('feriantes.cuenta');
+        Route::post('feriantes/{feriante}/cuenta', [FerianteController::class, 'crearCuenta'])->name('feriantes.cuenta.store');
 
         Route::resource('ofertas', OfertaController::class)->except('show');
         Route::patch('ofertas/{oferta}/stock', [OfertaController::class, 'stock'])->name('ofertas.stock');

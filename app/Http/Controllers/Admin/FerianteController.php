@@ -2,12 +2,19 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\Rol;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\CuentaFerianteRequest;
 use App\Http\Requests\Admin\FerianteRequest;
 use App\Models\Feria;
 use App\Models\Feriante;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 /**
@@ -89,5 +96,44 @@ class FerianteController extends Controller
         $feriante->save();
 
         return back()->with('exito', "{$feriante->nombre} quedó sin validar.");
+    }
+
+    /** Formulario para crearle una cuenta al feriante (para la mensajería, HU12). */
+    public function cuenta(Feriante $feriante): View|RedirectResponse
+    {
+        if ($feriante->tieneCuenta()) {
+            return back()->with('error', 'Este feriante ya tiene cuenta.');
+        }
+
+        return view('admin.feriantes.cuenta', compact('feriante'));
+    }
+
+    /**
+     * Crea el usuario con rol feriante, lo vincula y le manda el correo para
+     * que elija su contraseña (el mismo de «Olvidé mi contraseña»).
+     */
+    public function crearCuenta(CuentaFerianteRequest $request, Feriante $feriante): RedirectResponse
+    {
+        if ($feriante->tieneCuenta()) {
+            return back()->with('error', 'Este feriante ya tiene cuenta.');
+        }
+
+        DB::transaction(function () use ($request, $feriante) {
+            $user = new User([
+                'name' => $feriante->nombre,
+                'email' => $request->validated('email'),
+                // Contraseña al azar: el feriante elige la suya con el enlace del correo.
+                'password' => Hash::make(Str::random(40)),
+            ]);
+            $user->rol = Rol::Feriante;
+            $user->save();
+
+            $feriante->user()->associate($user)->save();
+        });
+
+        Password::sendResetLink(['email' => $request->validated('email')]);
+
+        return redirect()->route('admin.feriantes.index')
+            ->with('exito', "Se creó la cuenta de {$feriante->nombre} y se le envió el correo para elegir su contraseña.");
     }
 }

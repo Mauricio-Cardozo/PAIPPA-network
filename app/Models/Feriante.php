@@ -44,6 +44,16 @@ class Feriante extends Model
         return $this->hasMany(Oferta::class);
     }
 
+    public function conversaciones(): HasMany
+    {
+        return $this->hasMany(Conversacion::class);
+    }
+
+    public function tieneCuenta(): bool
+    {
+        return $this->user_id !== null;
+    }
+
     public function estaValidado(): bool
     {
         return $this->validado_at !== null;

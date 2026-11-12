@@ -37,6 +37,9 @@
                                 {{ $feriante->estaValidado() ? 'Invalidar' : 'Validar' }}
                             </button>
                         </form>
+                        @unless ($feriante->tieneCuenta())
+                            <a href="{{ route('admin.feriantes.cuenta', $feriante) }}" class="text-sm font-medium text-gray-600 hover:text-gray-900">Crear cuenta</a>
+                        @endunless
                         <a href="{{ route('admin.feriantes.edit', $feriante) }}" class="text-sm font-medium text-verde-700 hover:text-verde-900">Editar</a>
                         <x-admin.baja :accion="route('admin.feriantes.destroy', $feriante)" :nombre="$feriante->nombre" />
                     </td>
