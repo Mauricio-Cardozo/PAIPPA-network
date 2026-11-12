@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\CategoriaController;
 use App\Http\Controllers\Admin\EstadisticaController;
 use App\Http\Controllers\Admin\FeriaController;
 use App\Http\Controllers\Admin\FerianteController;
+use App\Http\Controllers\Admin\InicioController;
 use App\Http\Controllers\Admin\OfertaController;
 use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\PuntoRetiroController;
@@ -66,7 +67,7 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        Route::view('/', 'admin.inicio')->name('inicio');
+        Route::get('/', InicioController::class)->name('inicio');
 
         // ABM: index, create, store, edit, update y destroy (sin show).
         Route::resource('categorias', CategoriaController::class)->except('show');
