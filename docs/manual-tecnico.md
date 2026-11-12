@@ -129,6 +129,7 @@ Nunca se suben credenciales al repositorio: solo van en el `.env` de cada entorn
 3. Crear la base MySQL en el panel del hosting y completar el `.env` de producción (tabla anterior).
 4. Por SSH (si hay): `php artisan key:generate`, `php artisan migrate --force`, `php artisan db:seed --class=CategoriaSeeder --force`, `php artisan config:cache`, `php artisan route:cache`, `php artisan view:cache` y `php artisan storage:link`.
 5. Crear el administrador real por tinker o por la base (con `rol = admin`); el seeder de usuarios de prueba no corre en producción.
+   - Si para la defensa se quieren los **datos de ejemplo** (`FeriaSeeder`), ese seeder usa Faker, que es una dependencia de desarrollo: instalar con `composer install` (sin `--no-dev`) solo para sembrar, o sembrar la base en local y exportarla con `mysqldump`.
 6. Programar el cron del hosting cada minuto: `php /ruta/al/proyecto/artisan schedule:run`, que ejecuta `model:prune` a diario.
 7. Activar HTTPS (Let's Encrypt suele venir en el panel) y forzar la redirección de `http` a `https`.
 8. Revisar la lista de `docs/pruebas/seguridad.md` sobre el sitio publicado.
