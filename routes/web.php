@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoriaController;
+use App\Http\Controllers\Admin\FeriaController;
+use App\Http\Controllers\Admin\FerianteController;
+use App\Http\Controllers\Admin\OfertaController;
+use App\Http\Controllers\Admin\ProductoController;
+use App\Http\Controllers\Admin\PuntoRetiroController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -42,6 +48,21 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
     ->name('admin.')
     ->group(function () {
         Route::view('/', 'admin.inicio')->name('inicio');
+
+        // ABM: index, create, store, edit, update y destroy (sin show).
+        Route::resource('categorias', CategoriaController::class)->except('show');
+        Route::resource('productos', ProductoController::class)->except('show');
+        Route::resource('ferias', FeriaController::class)->except('show');
+        Route::resource('puntos-retiro', PuntoRetiroController::class)
+            ->except('show')
+            ->parameters(['puntos-retiro' => 'puntoRetiro']);
+
+        Route::resource('feriantes', FerianteController::class)->except('show');
+        Route::patch('feriantes/{feriante}/validar', [FerianteController::class, 'validar'])->name('feriantes.validar');
+        Route::patch('feriantes/{feriante}/invalidar', [FerianteController::class, 'invalidar'])->name('feriantes.invalidar');
+
+        Route::resource('ofertas', OfertaController::class)->except('show');
+        Route::patch('ofertas/{oferta}/stock', [OfertaController::class, 'stock'])->name('ofertas.stock');
     });
 
 require __DIR__.'/auth.php';
