@@ -5,13 +5,14 @@ namespace App\View\Components;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
+/**
+ * <x-app-layout> de Breeze (perfil del usuario): usa el layout público
+ * para que todo el sitio se vea igual.
+ */
 class AppLayout extends Component
 {
-    /**
-     * Get the view / contents that represents the component.
-     */
     public function render(): View
     {
-        return view('layouts.app');
+        return view('components.layouts.publico', ['titulo' => null]);
     }
 }
