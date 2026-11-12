@@ -70,4 +70,36 @@ class PasswordResetTest extends TestCase
             return true;
         });
     }
+
+    public function test_el_correo_de_recuperacion_esta_en_espanol_y_vence_en_60_minutos(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use ($user) {
+            $correo = $notification->toMail($user);
+
+            $this->assertSame('Restablecé tu contraseña', $correo->subject);
+            $this->assertSame('Restablecer contraseña', $correo->actionText);
+            $this->assertContains('Este enlace vence en 60 minutos.', array_map('strval', array_merge($correo->introLines, $correo->outroLines)));
+
+            return true;
+        });
+    }
+
+    public function test_no_revela_si_el_correo_esta_registrado(): void
+    {
+        Notification::fake();
+        $user = User::factory()->create();
+
+        $existente = $this->post('/forgot-password', ['email' => $user->email]);
+        $inexistente = $this->post('/forgot-password', ['email' => 'nadie@example.com']);
+
+        $existente->assertSessionHas('status');
+        $inexistente->assertSessionHas('status', session('status'));
+        $inexistente->assertSessionHasNoErrors();
+    }
 }
