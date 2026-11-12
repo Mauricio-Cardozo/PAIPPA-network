@@ -23,8 +23,13 @@ class AccesoPorRolTest extends TestCase
     {
         $rutas = [
             'catálogo' => ['/', [200, 200, 200, 200]],
+            'mapa' => ['/mapa', [200, 200, 200, 200]],
+            'puntos del mapa' => ['/mapa/puntos', [200, 200, 200, 200]],
             'perfil propio' => ['/profile', ['login', 200, 200, 200]],
             'panel admin' => ['/admin', ['login', 403, 403, 200]],
+            'ofertas del panel' => ['/admin/ofertas', ['login', 403, 403, 200]],
+            'usuarios del panel' => ['/admin/usuarios', ['login', 403, 403, 200]],
+            'estadísticas' => ['/admin/estadisticas', ['login', 403, 403, 200]],
         ];
 
         $roles = [null, 'revendedor', 'feriante', 'admin'];
