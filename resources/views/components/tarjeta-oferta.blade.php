@@ -11,7 +11,9 @@
             <h2 class="text-lg font-semibold text-gray-900">{{ $oferta->producto->nombre }}</h2>
         </div>
         <span class="whitespace-nowrap rounded-full bg-verde-50 px-2 py-0.5 text-xs font-medium text-verde-800">
-            {{ $oferta->cajas_disponibles }} {{ $oferta->producto->unidad }}{{ $oferta->cajas_disponibles === 1 ? '' : 's' }}
+            {{-- Plural simple en español: «caja» → «cajas», «unidad» → «unidades». --}}
+            {{ $oferta->cajas_disponibles }}
+            {{ $oferta->cajas_disponibles === 1 ? $oferta->producto->unidad : $oferta->producto->unidad.(preg_match('/[aeiou]$/i', $oferta->producto->unidad) ? 's' : 'es') }}
         </span>
     </div>
 

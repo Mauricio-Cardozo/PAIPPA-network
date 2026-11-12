@@ -20,8 +20,10 @@
             @foreach ($ofertas as $oferta)
                 <tr>
                     <td class="px-4 py-3 font-medium" data-etiqueta="Producto">
-                        {{ $oferta->producto?->nombre ?? '—' }}
-                        <span class="block text-xs font-normal text-gray-500">Actualizado {{ $oferta->updated_at->diffForHumans() }}</span>
+                        <div>
+                            {{ $oferta->producto?->nombre ?? '—' }}
+                            <span class="block text-xs font-normal text-gray-500">Actualizado {{ $oferta->updated_at->diffForHumans() }}</span>
+                        </div>
                     </td>
                     <td class="px-4 py-3" data-etiqueta="Feriante">{{ $oferta->feriante?->nombre ?? '—' }}</td>
                     <td class="px-4 py-3" data-etiqueta="Precio por caja">$ {{ number_format($oferta->precio_caja, 2, ',', '.') }}</td>
