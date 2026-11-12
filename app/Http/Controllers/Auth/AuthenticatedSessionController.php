@@ -14,8 +14,20 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
+        // «Iniciá sesión para contactar»: después del login se vuelve a la
+        // página de la oferta. Solo se guarda la ruta interna (path), nunca
+        // un dominio externo, para evitar redirecciones abiertas.
+        if ($request->filled('volver')) {
+            $ruta = parse_url((string) $request->query('volver'), PHP_URL_PATH) ?: '/';
+            $consulta = parse_url((string) $request->query('volver'), PHP_URL_QUERY);
+
+            if (str_starts_with($ruta, '/') && ! str_starts_with($ruta, '//')) {
+                $request->session()->put('url.intended', url($ruta.($consulta ? '?'.$consulta : '')));
+            }
+        }
+
         return view('auth.login');
     }
 
