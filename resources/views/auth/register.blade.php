@@ -1,52 +1,29 @@
 <x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
+    <h1 class="mb-1 text-lg font-bold text-gray-800">Creá tu cuenta de revendedor</h1>
+    <p class="mb-5 text-sm text-gray-600">Con tu cuenta podés contactar a los feriantes por WhatsApp.</p>
+
+    <form method="POST" action="{{ route('register') }}" novalidate>
         @csrf
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-        </div>
+        <x-campo nombre="name" etiqueta="Nombre y apellido" required autofocus autocomplete="name" />
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+        <x-campo nombre="email" etiqueta="Correo electrónico" tipo="email" required autocomplete="username" />
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+        <x-campo nombre="telefono" etiqueta="Teléfono (opcional)" tipo="tel" autocomplete="tel"
+                 ayuda="Con código de área, por ejemplo 370 4123456." />
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
+        <x-campo nombre="password" etiqueta="Contraseña" tipo="password" required autocomplete="new-password"
+                 ayuda="Al menos 8 caracteres." />
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+        <x-campo nombre="password_confirmation" etiqueta="Repetí la contraseña" tipo="password" required autocomplete="new-password" />
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+        <p class="mb-4 text-xs text-gray-500">
+            Usamos tus datos solo para que puedas contactar a los feriantes (Ley 25.326).
+        </p>
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
+        <div class="flex flex-col-reverse items-center gap-3 sm:flex-row sm:justify-between">
+            <a class="text-sm text-gray-600 underline hover:text-gray-900" href="{{ route('login') }}">{{ __('Already registered?') }}</a>
+            <x-boton class="w-full sm:w-auto">Registrarme</x-boton>
         </div>
     </form>
 </x-guest-layout>
