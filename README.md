@@ -9,9 +9,20 @@ Trabajo Final Integrador · Tecnicatura Universitaria en Programación · UTN FR
 
 Laravel 13 · PHP 8.3 o superior (desarrollo en 8.5) · MySQL 8.4 · Breeze (Blade) · Tailwind · Vite
 
-## Estado
+## Funcionalidades
 
-Proyecto base creado con Laravel 13, Breeze (Blade), Sail y CI en PHP 8.3 y 8.5.
+- **Catálogo público** con las ofertas vigentes: búsqueda por producto y filtros por categoría, feria y precio máximo. Pensado primero para el celular.
+- **Perfil de cada feriante** validado, con sus ofertas y puntos de retiro.
+- **Mapa** de los puntos de retiro con Leaflet y OpenStreetMap.
+- **Contacto por WhatsApp** con un mensaje ya escrito (requiere iniciar sesión; el clic se registra sin el mensaje).
+- **Registro e inicio de sesión** de revendedores, recuperación de contraseña y acceso por roles.
+- **Panel del administrador:** ABM de categorías, productos, ferias, puntos de retiro, feriantes (con validación) y ofertas (con actualización rápida de cantidad y vigencia), bloqueo de usuarios y estadísticas de uso.
+
+Pendiente y opcional: la mensajería interna (HU12).
+
+Documentación: [manual técnico](docs/manual-tecnico.md) · [pruebas de seguridad](docs/pruebas/seguridad.md) · [rendimiento](docs/pruebas/rendimiento.md).
+
+Usuarios de prueba (solo en local, después de `migrate --seed`): `admin@paippa.test` y `test@example.com`, contraseña `password`. Los correos de desarrollo se ven en Mailpit: <http://localhost:8025>.
 
 ## Requisitos
 
