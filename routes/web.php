@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CategoriaController;
+use App\Http\Controllers\Admin\EstadisticaController;
 use App\Http\Controllers\Admin\FeriaController;
 use App\Http\Controllers\Admin\FerianteController;
 use App\Http\Controllers\Admin\OfertaController;
@@ -81,6 +82,8 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
 
         Route::resource('ofertas', OfertaController::class)->except('show');
         Route::patch('ofertas/{oferta}/stock', [OfertaController::class, 'stock'])->name('ofertas.stock');
+
+        Route::get('estadisticas', [EstadisticaController::class, 'index'])->name('estadisticas');
 
         Route::get('usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
         Route::patch('usuarios/{usuario}/bloquear', [UsuarioController::class, 'bloquear'])->name('usuarios.bloquear');
