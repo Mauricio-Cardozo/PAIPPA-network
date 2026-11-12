@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\PuntoRetiroController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\ContactoController;
+use App\Http\Controllers\FerianteController as PerfilFerianteController;
+use App\Http\Controllers\MapaController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +20,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [CatalogoController::class, 'index'])->name('catalogo');
+Route::get('/feriantes/{feriante}', [PerfilFerianteController::class, 'show'])->whereNumber('feriante')->name('feriantes.show');
+Route::get('/mapa', [MapaController::class, 'index'])->name('mapa');
+Route::get('/mapa/puntos', [MapaController::class, 'puntos'])->name('mapa.puntos');
 
 /*
 |--------------------------------------------------------------------------
