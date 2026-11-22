@@ -39,4 +39,20 @@ class SeguridadSesionTest extends TestCase
             ->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
             ->assertHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
     }
+
+    #[Test]
+    public function al_sexto_intento_fallido_se_bloquea_el_acceso(): void
+    {
+        $user = User::factory()->create();
+
+        for ($i = 0; $i < 5; $i++) {
+            $this->post('/login', ['email' => $user->email, 'password' => 'incorrecta']);
+        }
+
+        $response = $this->post('/login', ['email' => $user->email, 'password' => 'incorrecta']);
+
+        $response->assertSessionHasErrors('email');
+        $this->assertStringContainsString('Demasiados intentos', session('errors')->first('email'));
+        $this->assertGuest();
+    }
 }
