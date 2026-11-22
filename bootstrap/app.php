@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CabecerasSeguridad;
 use App\Http\Middleware\SinCache;
 use App\Http\Middleware\VerificarRol;
 use Illuminate\Foundation\Application;
@@ -18,6 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'rol' => VerificarRol::class,
             'sin-cache' => SinCache::class,
+        ]);
+
+        // Cabeceras de seguridad en todas las respuestas web.
+        $middleware->web(append: [
+            CabecerasSeguridad::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -29,4 +29,14 @@ class SeguridadSesionTest extends TestCase
         $this->assertGuest();
         $this->get('/profile')->assertRedirect(route('login'));
     }
+
+    #[Test]
+    public function todas_las_respuestas_tienen_las_cabeceras_de_seguridad(): void
+    {
+        $this->get('/')
+            ->assertHeader('X-Content-Type-Options', 'nosniff')
+            ->assertHeader('X-Frame-Options', 'DENY')
+            ->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
+            ->assertHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    }
 }
