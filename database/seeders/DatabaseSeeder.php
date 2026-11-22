@@ -33,5 +33,9 @@ class DatabaseSeeder extends Seeder
                 'rol' => Rol::Admin,
             ])->save();
         }
+
+        $this->call([
+            CategoriaSeeder::class,
+        ]);
     }
 }
