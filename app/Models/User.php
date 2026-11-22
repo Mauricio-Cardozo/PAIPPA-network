@@ -8,6 +8,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -51,5 +52,16 @@ class User extends Authenticatable
     public function esFeriante(): bool
     {
         return $this->rol === Rol::Feriante;
+    }
+
+    public function estaBloqueado(): bool
+    {
+        return $this->bloqueado_at !== null;
+    }
+
+    /** El admin que bloqueó a este usuario (si está bloqueado). */
+    public function bloqueadoPor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'bloqueado_por');
     }
 }
