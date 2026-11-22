@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\SinCache;
 use App\Http\Middleware\VerificarRol;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Alias para usar en las rutas: ->middleware('rol:admin').
         $middleware->alias([
             'rol' => VerificarRol::class,
+            'sin-cache' => SinCache::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
