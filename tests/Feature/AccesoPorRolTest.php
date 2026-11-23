@@ -27,7 +27,7 @@ class AccesoPorRolTest extends TestCase
             'panel admin' => ['/admin', ['login', 403, 403, 200]],
         ];
 
-        $roles = [null, 'revendedor', 'feriante', 'admin'];
+        $roles = [null, 'comprador', 'feriante', 'admin'];
         $casos = [];
 
         foreach ($rutas as $nombre => [$url, $esperados]) {
@@ -57,12 +57,12 @@ class AccesoPorRolTest extends TestCase
     }
 
     #[Test]
-    public function el_admin_va_al_panel_y_el_revendedor_al_catalogo_despues_del_login(): void
+    public function el_admin_va_al_panel_y_el_comprador_al_catalogo_despues_del_login(): void
     {
         $admin = User::factory()->admin()->create();
         $this->actingAs($admin)->get('/dashboard')->assertRedirect(route('admin.inicio'));
 
-        $revendedor = User::factory()->create();
-        $this->actingAs($revendedor)->get('/dashboard')->assertRedirect(route('catalogo'));
+        $comprador = User::factory()->create();
+        $this->actingAs($comprador)->get('/dashboard')->assertRedirect(route('catalogo'));
     }
 }
