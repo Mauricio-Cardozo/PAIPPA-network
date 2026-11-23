@@ -91,4 +91,23 @@
         </div>
     </form>
 
+    </form>
+
+    <!-- Registro de nuevos usuarios -->
+    @if (Route::has('register'))
+    <div class="mt-6 text-center">
+        <p class="text-sm text-gray-500 mb-3">
+            ¿Todavía no tenés cuenta?
+        </p>
+
+        <a href="{{ route('register') }}"
+            class="block w-full py-3 text-center
+                      border border-paippa-green
+                      text-paippa-green font-medium
+                      rounded-lg hover:bg-green-50 transition">
+            Crear cuenta
+        </a>
+    </div>
+    @endif
+
 </x-guest-layout>
