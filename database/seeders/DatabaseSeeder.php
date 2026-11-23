@@ -20,10 +20,10 @@ class DatabaseSeeder extends Seeder
         // Usuarios de prueba: solo en el entorno local, nunca en producción.
         if (app()->isLocal()) {
             User::firstOrNew(['email' => 'test@example.com'])->forceFill([
-                'name' => 'Revendedor de prueba',
+                'name' => 'Comprador de prueba',
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
-                'rol' => Rol::Revendedor,
+                'rol' => Rol::Comprador,
             ])->save();
 
             User::firstOrNew(['email' => 'admin@paippa.test'])->forceFill([
