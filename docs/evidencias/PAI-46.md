@@ -72,3 +72,117 @@ en las pantallas del sistema.
 
 Verificación:
 Pendiente de comprobar visualmente en el navegador.
+
+
+## Preparación del entorno de pruebas
+
+Se ejecutaron las migraciones pendientes mediante
+`php artisan migrate`.
+
+Resultado: 7 migraciones ejecutadas correctamente.
+
+Se cargaron datos de ejemplo mediante
+`php artisan db:seed`.
+
+Resultado: carga finalizada sin errores.
+
+Objetivo:
+Preparar la base de datos local para verificar
+la navegación y los menús según el rol del usuario.
+
+
+## Prueba de seguridad por roles
+
+**Caso:** Acceso de un revendedor al panel administrador.
+
+**Procedimiento:**
+1. Iniciar sesión con un usuario de rol revendedor.
+2. Intentar acceder a la ruta /admin.
+
+**Resultado esperado:**
+El sistema debe impedir el acceso y mostrar HTTP 403.
+
+**Resultado obtenido:**
+Se mostró correctamente la página 403 con el mensaje
+"No tenés permiso para entrar acá".
+
+**Estado:** APROBADO.
+
+**Evidencia:**
+docs/evidencias/capturas/PAI-46-acceso-denegado.png
+
+**Conclusión:**
+Se verificó que el middleware de roles impide el acceso
+a una ruta administrativa desde un usuario sin permisos.
+
+
+## Prueba de navegación móvil
+
+**Objetivo:** Comprobar que el menú de PAIPPA Network
+se adapte correctamente a dispositivos móviles.
+
+**Procedimiento:**
+1. Iniciar sesión como revendedor.
+2. Activar la vista móvil del navegador.
+3. Desplegar el menú de navegación.
+4. Verificar las opciones disponibles.
+
+**Resultado esperado:**
+Mostrar Catálogo, Mi perfil y Cerrar sesión,
+sin incluir Administración.
+
+**Resultado obtenido:**
+El menú se desplegó correctamente y mostró
+las opciones correspondientes al revendedor.
+
+**Estado:** APROBADO.
+
+**Evidencia:**
+docs/evidencias/capturas/PAI-46-movil.png
+
+
+## Evidencias visuales de PAI-46
+
+| Evidencia | Archivo | Resultado |
+|---|---|---|
+| Inicio de sesión | capturas/01-login.png | Diseño PAIPPA aplicado |
+| Menú administrador | capturas/02-menu-admin.png | Opciones administrativas visibles |
+| Menú revendedor | capturas/03-menu-revendedor.png | Administración oculta |
+| Acceso restringido | capturas/04-acceso-denegado.png | HTTP 403 correcto |
+| Menú móvil | capturas/05-menu-movil.png | Navegación adaptable |
+
+Las capturas corresponden a verificaciones manuales
+realizadas en el entorno local de desarrollo.
+
+
+## Pruebas automáticas
+
+Se ejecutó la suite automatizada de Laravel
+mediante el comando `php artisan test`.
+
+### Problema detectado
+En la primera ejecución fallaron 41 pruebas porque
+PHP no tenía habilitado el controlador SQLite.
+
+### Solución aplicada
+Se habilitaron las extensiones `pdo_sqlite`
+y `sqlite3` en la configuración local de PHP.
+
+### Resultado final
+- Pruebas aprobadas: 43
+- Pruebas fallidas: 0
+- Aserciones: 108
+- Duración: 13,34 segundos
+
+**Estado:** APROBADO.
+
+### Evidencia
+docs/evidencias/capturas/06-tests-aprobados.png
+
+### Conclusión
+Se resolvió un problema de configuración del
+entorno y se ejecutaron correctamente las
+pruebas automatizadas del proyecto.
+
+Este resultado corresponde a la suite existente;
+no representa una medición de cobertura del código.
