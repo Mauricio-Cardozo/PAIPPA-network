@@ -1,12 +1,9 @@
-
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Models\Categoria;
-use App\Models\Feriante;
 use App\Models\Feria;
+use App\Models\Feriante;
 use App\Models\Oferta;
-use App\Models\Producto;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
