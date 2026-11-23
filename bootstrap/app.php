@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\CabecerasSeguridad;
+use App\Http\Middleware\SinCache;
+use App\Http\Middleware\VerificarRol;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,7 +15,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Alias para usar en las rutas: ->middleware('rol:admin').
+        $middleware->alias([
+            'rol' => VerificarRol::class,
+            'sin-cache' => SinCache::class,
+        ]);
+
+        // Cabeceras de seguridad en todas las respuestas web.
+        $middleware->web(append: [
+            CabecerasSeguridad::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

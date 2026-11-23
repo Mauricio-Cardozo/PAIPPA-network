@@ -3,10 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\Rol;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -27,6 +29,39 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'rol' => Rol::class,
+            'bloqueado_at' => 'datetime',
         ];
+    }
+
+    /*
+     * El rol NO está en #[Fillable]: así nadie puede crearse un admin
+     * mandando "rol=admin" en un formulario. Se asigna a mano en el código.
+     */
+
+    public function esAdmin(): bool
+    {
+        return $this->rol === Rol::Admin;
+    }
+
+    public function esRevendedor(): bool
+    {
+        return $this->rol === Rol::Revendedor;
+    }
+
+    public function esFeriante(): bool
+    {
+        return $this->rol === Rol::Feriante;
+    }
+
+    public function estaBloqueado(): bool
+    {
+        return $this->bloqueado_at !== null;
+    }
+
+    /** El admin que bloqueó a este usuario (si está bloqueado). */
+    public function bloqueadoPor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'bloqueado_por');
     }
 }
