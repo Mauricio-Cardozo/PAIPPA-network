@@ -1,0 +1,39 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": {
+    "edit": "allow",
+    "webfetch": "ask",
+    "bash": {
+      "*": "ask",
+      "ls*": "allow",
+      "cat *": "allow",
+      "grep *": "allow",
+      "find *": "allow",
+      "git status*": "allow",
+      "git diff*": "allow",
+      "git log*": "allow",
+      "git branch*": "allow",
+      "git show*": "allow",
+      "./vendor/bin/sail artisan test*": "allow",
+      "./vendor/bin/sail artisan route:list*": "allow",
+      "./vendor/bin/sail pint*": "allow",
+      "./vendor/bin/sail npm run build*": "allow",
+      "php artisan test*": "allow",
+      "php artisan route:list*": "allow",
+      "vendor/bin/pint*": "allow",
+      "npm run build*": "allow",
+      "git commit*": "ask",
+      "*migrate:fresh*": "ask",
+      "git push*": "deny",
+      "git merge*": "deny",
+      "git rebase*": "deny",
+      "git reset --hard*": "deny",
+      "git flow * finish*": "deny",
+      "*composer update*": "deny",
+      "*npm update*": "deny",
+      "rm -rf*": "deny",
+      "*.env": "deny",
+      "cat .env*": "deny"
+    }
+  }
+}

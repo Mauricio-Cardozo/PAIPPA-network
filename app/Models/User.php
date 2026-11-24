@@ -44,9 +44,9 @@ class User extends Authenticatable
         return $this->rol === Rol::Admin;
     }
 
-    public function esRevendedor(): bool
+    public function esComprador(): bool
     {
-        return $this->rol === Rol::Revendedor;
+        return $this->rol === Rol::Comprador;
     }
 
     public function esFeriante(): bool
