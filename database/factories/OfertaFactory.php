@@ -25,23 +25,34 @@ class OfertaFactory extends Factory
             'punto_retiro_id' => fn (array $atributos) => PuntoRetiro::factory()->create([
                 'feria_id' => Feriante::find($atributos['feriante_id'])->feria_id,
             ])->id,
-            'precio_caja' => fake()->randomFloat(2, 3000, 40000),
-            'cajas_disponibles' => fake()->numberBetween(1, 50),
-            'vigente_desde' => today()->subDay(),
+            'precio' => fake()->randomFloat(2, 500, 20000),
+            'cantidad_disponible' => fake()->numberBetween(1, 50),
+            'disponible_desde' => today()->subDay(),
             'vigente_hasta' => today()->addDays(6),
+            'promocion' => false,
+            'entrega_domicilio' => false,
         ];
     }
 
     public function sinStock(): static
     {
-        return $this->state(['cajas_disponibles' => 0]);
+        return $this->state(['cantidad_disponible' => 0]);
     }
 
     public function vencida(): static
     {
         return $this->state([
-            'vigente_desde' => today()->subDays(10),
+            'disponible_desde' => today()->subDays(10),
             'vigente_hasta' => today()->subDay(),
+        ]);
+    }
+
+    /** Oferta cerrada: el feriante informó lo vendido (RN-17). */
+    public function cerrada(): static
+    {
+        return $this->state([
+            'cantidad_vendida' => 10,
+            'cerrada_at' => now(),
         ]);
     }
 }

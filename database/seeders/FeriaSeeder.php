@@ -80,10 +80,12 @@ class FeriaSeeder extends Seeder
                         'feriante_id' => $feriante->id,
                         'producto_id' => $producto->id,
                         'punto_retiro_id' => $puntos->random()->id,
-                        'precio_caja' => fake()->randomElement([3500, 5000, 7500, 9000, 12000, 15500, 18000]),
-                        'cajas_disponibles' => fake()->numberBetween(0, 30),
-                        'vigente_desde' => today()->subDays(fake()->numberBetween(0, 3)),
+                        'precio' => fake()->randomElement([800, 1500, 2500, 3500, 5000, 7500, 12000]),
+                        'cantidad_disponible' => fake()->numberBetween(0, 30),
+                        'disponible_desde' => today()->subDays(fake()->numberBetween(0, 3)),
                         'vigente_hasta' => today()->addDays(fake()->numberBetween(-1, 7)),
+                        'promocion' => fake()->boolean(20),
+                        'entrega_domicilio' => fake()->boolean(30),
                     ]);
                 }
             }
