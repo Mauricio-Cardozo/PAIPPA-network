@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['feriante_id', 'producto_id', 'punto_retiro_id', 'precio_caja', 'cajas_disponibles', 'vigente_desde', 'vigente_hasta'])]
+#[Fillable(['feriante_id', 'producto_id', 'punto_retiro_id', 'precio', 'cantidad_disponible', 'disponible_desde', 'vigente_hasta', 'promocion', 'entrega_domicilio', 'cantidad_vendida', 'cerrada_at'])]
 class Oferta extends Model
 {
     /** @use HasFactory<OfertaFactory> */
@@ -20,10 +20,14 @@ class Oferta extends Model
     protected function casts(): array
     {
         return [
-            'precio_caja' => 'decimal:2',
-            'cajas_disponibles' => 'integer',
-            'vigente_desde' => 'date',
+            'precio' => 'decimal:2',
+            'cantidad_disponible' => 'decimal:2',
+            'disponible_desde' => 'date',
             'vigente_hasta' => 'date',
+            'promocion' => 'boolean',
+            'entrega_domicilio' => 'boolean',
+            'cantidad_vendida' => 'decimal:2',
+            'cerrada_at' => 'datetime',
         ];
     }
 

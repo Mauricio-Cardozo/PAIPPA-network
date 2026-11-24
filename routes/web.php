@@ -63,9 +63,10 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
 
             // Ofertas con fechas vigentes y stock disponible
             $totalOfertasVigentes = Oferta::query()
-                ->whereDate('vigente_desde', '<=', today())
+                ->whereDate('disponible_desde', '<=', today())
                 ->whereDate('vigente_hasta', '>=', today())
-                ->where('cajas_disponibles', '>', 0)
+                ->where('cantidad_disponible', '>', 0)
+                ->whereNull('cerrada_at')
                 ->count();
 
             return view('admin.inicio', compact(
