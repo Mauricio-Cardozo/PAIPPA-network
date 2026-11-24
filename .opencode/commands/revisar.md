@@ -3,7 +3,7 @@ description: Revisa los cambios de la rama actual contra develop, sin editar nad
 agent: plan
 ---
 
-Revisá los cambios de la rama actual con `git diff develop...HEAD` y `git status`, contra las reglas de `AGENTS.md`. **No edites ningún archivo.**
+Revisá los cambios de la rama actual con `git diff develop...HEAD` y `git status`, contra las reglas de `CLAUDE.md`. **No edites ningún archivo.**
 
 Revisá y reportá, de lo más grave a lo menos grave:
 1. **Seguridad:** `rol` asignable en masa, rutas sin el middleware que corresponde, `{!! !!}` o `innerHTML` con datos, formularios sin `@csrf`, SQL concatenado, validación faltante, datos personales de más, secretos o `.env` en el diff.

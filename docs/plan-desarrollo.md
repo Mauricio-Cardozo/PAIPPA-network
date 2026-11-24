@@ -10,7 +10,7 @@ curl -fsSL https://opencode.ai/install | bash     # o: npm i -g opencode-ai
 cd ~/PAIPPA-network
 opencode                                          # dentro: /models para elegir el modelo
 ```
-No hace falta ejecutar `/init`: el `AGENTS.md` ya está escrito. Después de mergear este plan a `develop`, cerrá y volvé a abrir OpenCode para que cargue los comandos `/tarea`, `/revisar` y `/explicar`.
+No hace falta ejecutar `/init`: el `CLAUDE.md` ya está escrito. Después de mergear este plan a `develop`, cerrá y volvé a abrir Claude Code (u OpenCode) para que cargue los comandos `/tarea`, `/revisar` y `/explicar`.
 
 ### El ciclo de cada tarea
 
@@ -81,7 +81,7 @@ OpenCode puede ayudar a **redactar** el manual técnico y el README a partir del
 | `mensajes.conversacion_id` | `cascade` | |
 | `conversaciones.revendedor_id`, `conversaciones.feriante_id` | `cascade` | |
 
-Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si alguien borra de verdad. Las bajas del ABM se controlan en el código (ver `AGENTS.md`).
+Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si alguien borra de verdad. Las bajas del ABM se controlan en el código (ver `CLAUDE.md`).
 
 > **Por confirmar con el relevamiento:** el modelo supone que cada feriante está en **una sola** feria (`feriantes.feria_id`). Si un feriante puede estar en varias, hace falta una tabla pivote `feria_feriante`, y hay que decidirlo antes del esquema.
 
@@ -94,7 +94,7 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
 ## Sprint 1 · Base de datos, acceso y layout (5/11 → 13/11)
 
 > **Antes de la primera tarea:**
-> - Este plan, el `AGENTS.md` y los comandos tienen que estar mergeados en `develop` (PR de PAI-29).
+> - Este plan, el `CLAUDE.md` y los comandos tienen que estar mergeados en `develop` (PR de PAI-29).
 > - El DER (PAI-18) congelado antes de PAI-53 y de PAI-134.
 > - Los mockups (PAI-25) antes de PAI-36 y PAI-46. Si no están, esas dos se hacen con el diseño de Breeze provisional y se ajustan después.
 >
@@ -254,7 +254,7 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
 - **Hacer:**
   - En `Oferta`, el scope `vigentes()` (hoy entre las fechas y `cajas_disponibles > 0`) y el scope `publicadas()` (vigentes, de feriante validado, y sin feriante, producto ni punto de retiro borrados).
   - El accessor `estado` (enum `EstadoOferta`: Publicada, Vencida, Sin stock, Feriante sin validar) con **las mismas reglas** que `publicadas()`, para que el panel y el catálogo nunca se contradigan.
-  - Comparar fechas como dice `AGENTS.md` (sin `whereDate`).
+  - Comparar fechas como dice `CLAUDE.md` (sin `whereDate`).
 - **Criterios:** las reglas de negocio del modelo de datos.
 - **Pruebas:** `tests/Feature/OfertaScopesTest.php`, con un caso por cada regla, los bordes (vence hoy, empieza mañana) con `travelTo`, y que `estado` coincida con `publicadas()`.
 
