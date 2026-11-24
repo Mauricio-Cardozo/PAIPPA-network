@@ -66,7 +66,7 @@ El equipo usa Sail. Si la persona dice que usa Herd, sacá el prefijo `./vendor/
 
 ## Convenciones de código
 
-- **Idioma:** el dominio va en español (modelos, tablas, columnas, rutas y vistas): `Feriante`, `PuntoRetiro`, `ofertas.precio_caja`. Los métodos propios del framework quedan como son (`index`, `store`, `update`). Comentarios y textos de la interfaz en español rioplatense («Iniciá sesión»).
+- **Idioma:** el dominio va en español (modelos, tablas, columnas, rutas y vistas): `Feriante`, `PuntoRetiro`, `ofertas.precio`. Los métodos propios del framework quedan como son (`index`, `store`, `update`). Comentarios y textos de la interfaz en español rioplatense («Iniciá sesión»).
 - **Modelos:**
   - Declarar siempre `protected $table`, porque Laravel pluraliza en inglés.
   - Usar los atributos PHP de Laravel 13 como en `User`: `#[Fillable([...])]` y `#[Hidden([...])]`, y `casts()` como método.
@@ -84,6 +84,7 @@ El equipo usa Sail. Si la persona dice que usa Herd, sacá el prefijo `./vendor/
 - **Fechas:**
   - Zona horaria `America/Argentina/Cordoba` (`APP_TIMEZONE`). «Hoy» es `today()` en esa zona.
   - Las columnas `date` se comparan con `where('vigente_hasta', '>=', today()->toDateString())`, no con `whereDate()`, para que el índice se use.
+  - Para «ya empezó» usar `where('disponible_desde', '<', today()->addDay()->toDateString())`, no `<= hoy`: SQLite guarda las fechas con hora (`2026-11-20 00:00:00`) y ese texto es mayor que `2026-11-20`.
   - En las pruebas que dependen de la fecha, congelar el tiempo con `$this->travelTo(...)`.
 - **Pruebas:**
   - PHPUnit 12 **no** lee anotaciones en docblocks: usar atributos (`#[Test]`, `#[DataProvider('casos')]` con método `public static`).
