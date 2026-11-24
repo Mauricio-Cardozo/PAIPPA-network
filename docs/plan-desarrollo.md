@@ -50,7 +50,7 @@ OpenCode puede ayudar a **redactar** el manual técnico y el README a partir del
 
 | Tabla | Columnas principales | Relaciones |
 |---|---|---|
-| `users` (agregar) | `rol` (`admin`, `feriante`, `revendedor`; por defecto `revendedor`) · `telefono` nullable · `bloqueado_at` nullable · `bloqueado_por` nullable (FK `users`) | |
+| `users` (agregar) | `rol` (`admin`, `feriante`, `comprador`; por defecto `comprador`) · `telefono` nullable · `bloqueado_at` nullable · `bloqueado_por` nullable (FK `users`) | |
 | `ferias` | `nombre` · `descripcion` nullable · `dias_horario` · soft deletes | tiene muchos `puntos_retiro` y muchos `feriantes` |
 | `puntos_retiro` | `feria_id` · `nombre` · `direccion` · `horario` · `latitud` decimal(10,7) · `longitud` decimal(10,7) · soft deletes | pertenece a `feria` |
 | `feriantes` | `user_id` nullable, único (cuenta opcional) · `feria_id` · `nombre` · `telefono_whatsapp` (formato `549XXXXXXXXXX`) · `descripcion` nullable · `validado_at` nullable · soft deletes | pertenece a `feria` y a `user`; tiene muchas `ofertas` |
@@ -59,10 +59,10 @@ OpenCode puede ayudar a **redactar** el manual técnico y el README a partir del
 | `ofertas` | `feriante_id` · `producto_id` · `punto_retiro_id` · `precio_caja` decimal(10,2) · `cajas_disponibles` unsigned · `vigente_desde` date · `vigente_hasta` date · soft deletes | pertenece a `feriante`, `producto` y `punto_retiro` |
 | `clics_whatsapp` | `user_id` · `feriante_id` · `oferta_id` nullable · `created_at` | sin contenido del mensaje; se borra a los 12 meses |
 | `consultas_producto` | `producto_id` · `user_id` nullable · `visitante` (user_id o hash del id de sesión) · `origen` (`busqueda`, `whatsapp`) · `fecha` date · `created_at` | para HU15; único (`producto_id`, `origen`, `visitante`, `fecha`) |
-| `conversaciones` (HU12, opcional) | `revendedor_id` (FK `users`) · `feriante_id` | tiene muchos `mensajes` |
+| `conversaciones` (HU12, opcional) | `comprador_id` (FK `users`) · `feriante_id` | tiene muchos `mensajes` |
 | `mensajes` (HU12, opcional) | `conversacion_id` · `user_id` (remitente) · `cuerpo` · `leido_at` nullable | |
 
-**Únicos:** `categorias.nombre` y `ferias.nombre` son únicos solo entre los registros activos: validar con `Rule::unique(...)->withoutTrashed()`. Ojo: `unique(['nombre', 'deleted_at'])` **no** alcanza en MySQL/SQLite, porque los `NULL` se consideran distintos y permiten duplicados activos. Si se quiere reforzar en la base, agregar una columna generada `activo` con `virtualAs('CASE WHEN deleted_at IS NULL THEN 1 END')` (definirla después de `deleted_at`), que da `1` en activos y `NULL` en dados de baja, y `unique(['nombre', 'activo'])`. La expresión `CASE` es portable a MySQL y SQLite; `IF()` solo funciona en MySQL. `conversaciones` tiene un único par (`revendedor_id`, `feriante_id`).
+**Únicos:** `categorias.nombre` y `ferias.nombre` son únicos solo entre los registros activos: validar con `Rule::unique(...)->withoutTrashed()`. Ojo: `unique(['nombre', 'deleted_at'])` **no** alcanza en MySQL/SQLite, porque los `NULL` se consideran distintos y permiten duplicados activos. Si se quiere reforzar en la base, agregar una columna generada `activo` con `virtualAs('CASE WHEN deleted_at IS NULL THEN 1 END')` (definirla después de `deleted_at`), que da `1` en activos y `NULL` en dados de baja, y `unique(['nombre', 'activo'])`. La expresión `CASE` es portable a MySQL y SQLite; `IF()` solo funciona en MySQL. `conversaciones` tiene un único par (`comprador_id`, `feriante_id`).
 
 **Política de cada clave foránea** (definida antes de migrar):
 
@@ -79,7 +79,7 @@ OpenCode puede ayudar a **redactar** el manual técnico y el README a partir del
 | `consultas_producto.user_id` | `nullOnDelete` | |
 | `users.bloqueado_por` | `nullOnDelete` | |
 | `mensajes.conversacion_id` | `cascade` | |
-| `conversaciones.revendedor_id`, `conversaciones.feriante_id` | `cascade` | |
+| `conversaciones.comprador_id`, `conversaciones.feriante_id` | `cascade` | |
 
 Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si alguien borra de verdad. Las bajas del ABM se controlan en el código (ver `CLAUDE.md`).
 
@@ -113,12 +113,12 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
 ### PAI-35 · Migración de usuarios con rol
 - **Quién:** Mauricio · **HU1** · **Depende de:** nada
 - **Hacer:**
-  - Enum `App\Enums\Rol` (`Admin = 'admin'`, `Feriante = 'feriante'`, `Revendedor = 'revendedor'`) con `etiqueta()`.
-  - Migración **nueva** `add_rol_to_users_table` con `rol` (string, por defecto `revendedor`, con índice), `telefono` nullable, `bloqueado_at` nullable y `bloqueado_por` (FK nullable a `users`, `nullOnDelete`).
-  - En `User`: cast `rol => Rol::class` y los helpers `esAdmin()`, `esRevendedor()` y `esFeriante()`. **No** agregar `rol` a `#[Fillable]`.
+  - Enum `App\Enums\Rol` (`Admin = 'admin'`, `Feriante = 'feriante'`, `Comprador = 'comprador'`) con `etiqueta()`.
+  - Migración **nueva** `add_rol_to_users_table` con `rol` (string, por defecto `comprador`, con índice), `telefono` nullable, `bloqueado_at` nullable y `bloqueado_por` (FK nullable a `users`, `nullOnDelete`).
+  - En `User`: cast `rol => Rol::class` y los helpers `esAdmin()`, `esComprador()` y `esFeriante()`. **No** agregar `rol` a `#[Fillable]`.
   - En `UserFactory`: estados `admin()` y `feriante()` con `state(['rol' => Rol::Admin])` (las factories no respetan `fillable`, así que funciona).
   - En `DatabaseSeeder`: el usuario `test@example.com` que trae Laravel y un admin `admin@paippa.test`, los dos con contraseña `password` y **solo** si `app()->isLocal()`. En el seeder se asigna el rol con `forceFill`.
-- **Criterios:** un usuario nuevo es `revendedor` por defecto; `User::factory()->admin()` crea un admin; `User::create(['rol' => 'admin', ...])` **no** crea un admin.
+- **Criterios:** un usuario nuevo es `comprador` por defecto; `User::factory()->admin()` crea un admin; `User::create(['rol' => 'admin', ...])` **no** crea un admin.
 - **Pruebas:** `tests/Feature/RolUsuarioTest.php`.
 
 ### PAI-53 · Migraciones, modelos y seeders de productos y categorías
@@ -140,14 +140,14 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
 - **Criterios:** `migrate:fresh --seed` anda en las tres PCs; `$feriante->ofertas`, `$oferta->puntoRetiro->feria` y `$feria->puntosRetiro` funcionan.
 - **Pruebas:** relaciones y claves foráneas (no se puede borrar una feria con puntos de retiro).
 
-### PAI-37 · Controlador de registro: rol Revendedor por defecto
+### PAI-37 · Controlador de registro: rol Comprador por defecto
 - **Quién:** Mauricio · **HU1** · **Depende de:** PAI-35 y PAI-41
 - **Hacer:**
   - Agregar `telefono` a `#[Fillable]` en `User` (es un dato que edita el usuario).
-  - En `RegisteredUserController@store`, crear el usuario con `rol = Rol::Revendedor` asignado en el código (no en el array de `create`). Guardar `telefono` si viene.
+  - En `RegisteredUserController@store`, crear el usuario con `rol = Rol::Comprador` asignado en el código (no en el array de `create`). Guardar `telefono` si viene.
   - Validar con un Form Request (`RegistroRequest`).
   - Agregar `throttle:6,1` a la ruta `POST /register`.
-- **Criterios:** con datos válidos se crea la cuenta como revendedor y se inicia sesión; aunque el formulario mande `rol=admin`, queda revendedor; un correo repetido muestra el error.
+- **Criterios:** con datos válidos se crea la cuenta como comprador y se inicia sesión; aunque el formulario mande `rol=admin`, queda comprador; un correo repetido muestra el error.
 - **Pruebas:** ampliar `tests/Feature/Auth/RegistrationTest.php`.
 
 ### PAI-36 · Formulario de registro con validaciones (vista según mockup)
@@ -162,7 +162,7 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
   - Crear las rutas base con nombre: `catalogo` (`/`, por ahora con una vista simple) y `admin.inicio` (`/admin`).
   - La ruta `dashboard` **se queda** (la usan seis controladores y varias pruebas de Breeze), pero pasa a ser un redirector: el admin va a `admin.inicio` y el resto a `catalogo`. Así el login, el registro, la verificación de correo y la confirmación de contraseña siguen andando sin tocarlos.
   - Se puede borrar `dashboard.blade.php` y hay que actualizar el enlace de `navigation.blade.php`.
-- **Criterios:** el admin cae en `/admin` y el revendedor en `/`; las 25 pruebas de Breeze siguen pasando (con los cambios mínimos en las que esperan `/dashboard`).
+- **Criterios:** el admin cae en `/admin` y el comprador en `/`; las 25 pruebas de Breeze siguen pasando (con los cambios mínimos en las que esperan `/dashboard`).
 - **Pruebas:** `tests/Feature/Auth/AuthenticationTest.php` con los dos casos.
 
 ### PAI-40 · Rutas privadas y cierre de sesión
@@ -179,7 +179,7 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
 - **Hacer:**
   - Middleware `App\Http\Middleware\VerificarRol`, registrado como alias `rol` en `bootstrap/app.php`. Se usa así: `->middleware('rol:admin')`.
   - Si el rol no coincide, responde 403, con la vista `resources/views/errors/403.blade.php` en español.
-- **Criterios:** un revendedor que entra a `/admin` recibe 403; el admin entra.
+- **Criterios:** un comprador que entra a `/admin` recibe 403; el admin entra.
 - **Pruebas:** en PAI-45.
 
 ### PAI-44 · Límite de intentos de acceso y CSRF en formularios
@@ -193,7 +193,7 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
 
 ### PAI-45 · Pruebas automáticas de acceso por rol
 - **Quién:** Mauricio · **HU3** · **Depende de:** PAI-43
-- **Hacer:** `tests/Feature/AccesoPorRolTest.php` con una matriz de visitante, revendedor, feriante y admin contra las rutas públicas, las de sesión y las de admin. Usar `#[DataProvider('casos')]` con un método `public static function casos(): array` (en PHPUnit 12 el `@dataProvider` del docblock no funciona).
+- **Hacer:** `tests/Feature/AccesoPorRolTest.php` con una matriz de visitante, comprador, feriante y admin contra las rutas públicas, las de sesión y las de admin. Usar `#[DataProvider('casos')]` con un método `public static function casos(): array` (en PHPUnit 12 el `@dataProvider` del docblock no funciona).
 - **Criterios:** cada combinación da lo esperado: 200, redirección al login o 403.
 
 ### PAI-41 · Mensajes de error y validación en español (y zona horaria)
@@ -212,9 +212,9 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
   - Un layout público (`x-layouts.publico`: encabezado, menú, pie) y el layout del panel admin (`x-layouts.admin`), a partir de los de Breeze. Son componentes anónimos en `resources/views/components/layouts/publico.blade.php` y `resources/views/components/layouts/admin.blade.php`, así `<x-layouts.publico>` y `<x-layouts.admin>` resuelven sin una clase de componente.
   - Componentes nuevos: `x-alerta` (mensajes flash), `x-boton`, `x-tarjeta` y `x-campo` (etiqueta, input y error).
   - Paleta y tipografía del mockup en `tailwind.config.js`.
-  - Menú según el rol: el visitante ve «Ingresar» y «Registrarse», el revendedor «Catálogo», «Mapa» y su cuenta, y el admin el panel.
+  - Menú según el rol: el visitante ve «Ingresar» y «Registrarse», el comprador «Catálogo», «Mapa» y su cuenta, y el admin el panel.
 - **Criterios:** se ve bien en 320, 375 y 768 px y en escritorio; el menú muestra solo lo del rol; todas las vistas de Breeze usan el layout nuevo.
-- **Pruebas:** el menú del admin contiene «Panel» y el del revendedor no.
+- **Pruebas:** el menú del admin contiene «Panel» y el del comprador no.
 
 ---
 
@@ -227,7 +227,7 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
   - Form Requests para crear y editar. Vistas `index`, `create` y `edit` con el layout admin.
   - Paginación de 15, búsqueda por nombre, mensajes flash y baja lógica.
   - No se puede dar de baja una categoría que tiene productos activos. Como es borrado lógico, la clave foránea no lo frena: chequear `$categoria->productos()->exists()` en el controlador y mostrar un mensaje.
-- **Criterios:** el admin crea, edita, lista y da de baja; un revendedor recibe 403; el nombre de la categoría es único entre las activas; no se puede dar de baja una categoría con productos.
+- **Criterios:** el admin crea, edita, lista y da de baja; un comprador recibe 403; el nombre de la categoría es único entre las activas; no se puede dar de baja una categoría con productos.
 - **Pruebas:** `tests/Feature/Admin/CategoriaTest.php` y `ProductoTest.php`.
 - **Nota:** este ABM es el **molde**. Los demás copian su estructura, así que conviene que quede muy prolijo y comentado.
 
@@ -367,9 +367,9 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
 ### PAI-79 · Modelo de mensajes y envío (HU12, opcional)
 - **Quién:** Lucas · **HU12** · **Depende de:** el MVP probado
 - **Hacer:**
-  - Migraciones y modelos `Conversacion` y `Mensaje`, con el único (`revendedor_id`, `feriante_id`).
+  - Migraciones y modelos `Conversacion` y `Mensaje`, con el único (`comprador_id`, `feriante_id`).
   - **Cuenta del feriante:** hoy ninguna tarea crea un usuario `rol = feriante` ni lo vincula con `feriantes.user_id`, y sin eso el feriante no puede responder. Incluir una acción del admin en el ABM de feriantes, «Crear cuenta», que pide el correo del feriante en el formulario (la tabla `feriantes` no tiene `email`), lo valida como único en `users` (`unique:users,email`), crea el usuario, lo vincula y le manda el correo para elegir la contraseña (el de recuperación de Breeze).
-  - Solo un revendedor inicia una conversación con un feriante que tenga cuenta; el feriante responde.
+  - Solo un comprador inicia una conversación con un feriante que tenga cuenta; el feriante responde.
   - Límite de 10 mensajes por hora por usuario con `RateLimiter`.
 - **Antes de empezar:** OpenCode pregunta si el MVP (HU1–HU7 y HU11) ya está mergeado y probado. Si no, no se hace.
 
