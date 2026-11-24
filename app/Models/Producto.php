@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Unidad;
 use Database\Factories\ProductoFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,6 +18,13 @@ class Producto extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'productos';
+
+    protected function casts(): array
+    {
+        return [
+            'unidad' => Unidad::class,
+        ];
+    }
 
     public function categoria(): BelongsTo
     {
