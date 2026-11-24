@@ -26,6 +26,7 @@ jobs:
           node-version: lts/*
           cache: npm
       - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: vendor/bin/pint --test
       - run: cp .env.example .env && php artisan key:generate
       - run: npm ci && npm run build
       - run: php artisan test
