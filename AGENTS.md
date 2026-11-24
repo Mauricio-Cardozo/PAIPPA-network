@@ -9,7 +9,7 @@ Plataforma web que conecta a los feriantes del PAIPPA con revendedores de Formos
 Es el Trabajo Final Integrador del Grupo 14 (UTN FRRe, TUP 2026). El equipo es Lucas, Apolo y Mauricio.
 
 - **Defensa individual:** cada integrante defiende **todo** el sistema ante un tribunal. El código tiene que ser simple, legible y explicable. Antes que lo ingenioso, va lo que se entiende.
-- **Roles del sistema:** `admin` (carga y valida todo), `revendedor` (navega el catálogo y contacta) y `feriante` (cuenta opcional, para la mensajería). Los visitantes sin sesión solo ven el catálogo, los perfiles y el mapa.
+- **Roles del sistema:** `admin` (carga y valida todo), `comprador` (navega el catálogo y contacta) y `feriante` (cuenta opcional, para la mensajería). Los visitantes sin sesión solo ven el catálogo, los perfiles y el mapa.
 - **Prioridad de las historias:** MVP obligatorio HU1–HU7 y HU11 · útiles HU8, HU9, HU10 y HU13 · deseables HU14 y HU15 · opcional HU12 (solo si el MVP está probado).
 
 ## Fuente de verdad, en este orden
