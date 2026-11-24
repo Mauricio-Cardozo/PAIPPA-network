@@ -13,7 +13,7 @@ class RolUsuarioTest extends TestCase
     use RefreshDatabase;
 
     #[Test]
-    public function un_usuario_nuevo_es_revendedor_por_defecto(): void
+    public function un_usuario_nuevo_es_comprador_por_defecto(): void
     {
         $user = User::create([
             'name' => 'Ana',
@@ -21,8 +21,8 @@ class RolUsuarioTest extends TestCase
             'password' => 'password',
         ]);
 
-        $this->assertSame(Rol::Revendedor, $user->fresh()->rol);
-        $this->assertTrue($user->fresh()->esRevendedor());
+        $this->assertSame(Rol::Comprador, $user->fresh()->rol);
+        $this->assertTrue($user->fresh()->esComprador());
     }
 
     #[Test]
@@ -31,7 +31,7 @@ class RolUsuarioTest extends TestCase
         $admin = User::factory()->admin()->create();
 
         $this->assertTrue($admin->esAdmin());
-        $this->assertFalse($admin->esRevendedor());
+        $this->assertFalse($admin->esComprador());
     }
 
     #[Test]
@@ -44,7 +44,7 @@ class RolUsuarioTest extends TestCase
             'rol' => 'admin',
         ]);
 
-        $this->assertSame(Rol::Revendedor, $user->fresh()->rol);
+        $this->assertSame(Rol::Comprador, $user->fresh()->rol);
     }
 
     #[Test]

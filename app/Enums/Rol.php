@@ -10,7 +10,7 @@ enum Rol: string
 {
     case Admin = 'admin';
     case Feriante = 'feriante';
-    case Revendedor = 'revendedor';
+    case Comprador = 'comprador';
 
     /** Nombre para mostrar en la interfaz. */
     public function etiqueta(): string
@@ -18,7 +18,7 @@ enum Rol: string
         return match ($this) {
             self::Admin => 'Administrador',
             self::Feriante => 'Feriante',
-            self::Revendedor => 'Revendedor',
+            self::Comprador => 'Comprador',
         };
     }
 }
