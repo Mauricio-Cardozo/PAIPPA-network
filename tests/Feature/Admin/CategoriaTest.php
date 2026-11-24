@@ -39,7 +39,7 @@ class CategoriaTest extends TestCase
     }
 
     #[Test]
-    public function un_revendedor_recibe_403(): void
+    public function un_comprador_recibe_403(): void
     {
         $this->actingAs(User::factory()->create())
             ->get(route('admin.categorias.index'))

@@ -82,4 +82,4 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
         Route::resource('productos', ProductoController::class)->except('show');
     });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
