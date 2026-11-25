@@ -61,13 +61,8 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
 
             $totalUsuarios = User::count();
 
-            // Ofertas con fechas vigentes y stock disponible
-            $totalOfertasVigentes = Oferta::query()
-                ->whereDate('disponible_desde', '<=', today())
-                ->whereDate('vigente_hasta', '>=', today())
-                ->where('cantidad_disponible', '>', 0)
-                ->whereNull('cerrada_at')
-                ->count();
+            // Ofertas vigentes: misma regla que el scope Oferta::vigentes()
+            $totalOfertasVigentes = Oferta::vigentes()->count();
 
             return view('admin.inicio', compact(
                 'totalFeriantes',
