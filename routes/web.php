@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\CategoriaController;
+use App\Http\Controllers\Admin\FeriaController;
 use App\Http\Controllers\Admin\ProductoController;
+use App\Http\Controllers\Admin\PuntoRetiroController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Feria;
 use App\Models\Feriante;
@@ -75,6 +77,12 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
         // PAI-54: ABM de categorías y productos (sin la página show)
         Route::resource('categorias', CategoriaController::class)->except('show');
         Route::resource('productos', ProductoController::class)->except('show');
+
+        // PAI-48: ABM de ferias y puntos de retiro (sin la página show)
+        Route::resource('ferias', FeriaController::class)->except('show');
+        Route::resource('puntos-retiro', PuntoRetiroController::class)
+            ->except('show')
+            ->parameters(['puntos-retiro' => 'puntoRetiro']);
     });
 
 require __DIR__.'/auth.php';
