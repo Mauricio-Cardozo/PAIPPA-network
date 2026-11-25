@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\CategoriaController;
 use App\Http\Controllers\Admin\FeriaController;
+use App\Http\Controllers\Admin\FerianteController;
 use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\PuntoRetiroController;
 use App\Http\Controllers\MapaController;
@@ -87,6 +88,11 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
         Route::resource('puntos-retiro', PuntoRetiroController::class)
             ->except('show')
             ->parameters(['puntos-retiro' => 'puntoRetiro']);
+
+        // PAI-49: ABM de feriantes, con validar e invalidar como acciones aparte
+        Route::resource('feriantes', FerianteController::class)->except('show');
+        Route::patch('feriantes/{feriante}/validar', [FerianteController::class, 'validar'])->name('feriantes.validar');
+        Route::patch('feriantes/{feriante}/invalidar', [FerianteController::class, 'invalidar'])->name('feriantes.invalidar');
     });
 
 require __DIR__.'/auth.php';
