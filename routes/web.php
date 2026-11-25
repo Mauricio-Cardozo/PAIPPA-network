@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\CategoriaController;
 use App\Http\Controllers\Admin\FeriaController;
 use App\Http\Controllers\Admin\FerianteController;
+use App\Http\Controllers\Admin\OfertaController;
 use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\PuntoRetiroController;
 use App\Http\Controllers\MapaController;
@@ -93,6 +94,10 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
         Route::resource('feriantes', FerianteController::class)->except('show');
         Route::patch('feriantes/{feriante}/validar', [FerianteController::class, 'validar'])->name('feriantes.validar');
         Route::patch('feriantes/{feriante}/invalidar', [FerianteController::class, 'invalidar'])->name('feriantes.invalidar');
+
+        // PAI-57 y PAI-58: carga de ofertas y actualización rápida de cantidad y vigencia
+        Route::resource('ofertas', OfertaController::class)->except('show');
+        Route::patch('ofertas/{oferta}/stock', [OfertaController::class, 'stock'])->name('ofertas.stock');
     });
 
 require __DIR__.'/auth.php';
