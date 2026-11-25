@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoriaController;
+use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Feria;
 use App\Models\Feriante;
@@ -68,9 +70,11 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
                 'totalUsuarios',
                 'totalOfertasVigentes'
             ));
-
         })->name('inicio');
 
+        // PAI-54: ABM de categorías y productos (sin la página show)
+        Route::resource('categorias', CategoriaController::class)->except('show');
+        Route::resource('productos', ProductoController::class)->except('show');
     });
 
 require __DIR__.'/auth.php';
