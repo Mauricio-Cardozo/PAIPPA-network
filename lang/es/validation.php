@@ -175,6 +175,8 @@ return [
         'current_password' => 'contraseña actual',
         'telefono' => 'teléfono',
         'telefono_whatsapp' => 'teléfono de WhatsApp',
+        'procedencia' => 'procedencia',
+        'autoriza_whatsapp' => 'autorización de WhatsApp',
         'descripcion' => 'descripción',
         'categoria_id' => 'categoría',
         'producto_id' => 'producto',
