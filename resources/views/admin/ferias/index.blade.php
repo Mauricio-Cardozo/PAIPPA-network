@@ -32,7 +32,9 @@
                         <thead class="bg-gray-50 text-left text-gray-600">
                             <tr>
                                 <th class="px-4 py-3">Nombre</th>
-                                <th class="px-4 py-3">Días y horario</th>
+                                <th class="px-4 py-3">Tipo</th>
+                                <th class="px-4 py-3">Barrio</th>
+                                <th class="px-4 py-3">Cuándo</th>
                                 <th class="px-4 py-3">Puntos</th>
                                 <th class="px-4 py-3">Feriantes</th>
                                 <th class="px-4 py-3"></th>
@@ -42,7 +44,9 @@
                             @foreach ($ferias as $feria)
                                 <tr>
                                     <td class="px-4 py-3 font-medium">{{ $feria->nombre }}</td>
-                                    <td class="px-4 py-3">{{ $feria->dias_horario }}</td>
+                                    <td class="px-4 py-3">{{ $feria->tipo?->etiqueta() }}</td>
+                                    <td class="px-4 py-3">{{ $feria->barrio }}</td>
+                                    <td class="px-4 py-3">{{ $feria->cuando }}</td>
                                     <td class="px-4 py-3">{{ $feria->puntos_retiro_count }}</td>
                                     <td class="px-4 py-3">{{ $feria->feriantes_count }}</td>
                                     <td class="space-x-3 px-4 py-3 text-right">
