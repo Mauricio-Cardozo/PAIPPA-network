@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\TipoFeria;
 use App\Models\Feria;
 use App\Models\Feriante;
 use App\Models\Oferta;
@@ -20,7 +21,7 @@ class FeriaSeeder extends Seeder
         $ferias = [
             [
                 'nombre' => 'Feria Centro',
-                'dias_horario' => 'Miércoles y sábados de 6 a 12',
+                'direccion' => 'Av. 25 de Mayo y Moreno', 'barrio' => 'Centro', 'dias' => 'Miércoles y sábados', 'hora_inicio' => '06:00', 'hora_fin' => '12:00',
                 'puntos' => [
                     ['Plaza San Martín', 'Av. 25 de Mayo y Moreno', 'De 6 a 12', -26.1857, -58.1756],
                     ['Galpón Centro', 'Belgrano 450', 'De 7 a 11', -26.1834, -58.1730],
@@ -28,7 +29,7 @@ class FeriaSeeder extends Seeder
             ],
             [
                 'nombre' => 'Feria Barrio San Miguel',
-                'dias_horario' => 'Martes y viernes de 7 a 12',
+                'direccion' => 'Av. Kirchner 2800', 'barrio' => 'San Miguel', 'dias' => 'Martes y viernes', 'hora_inicio' => '07:00', 'hora_fin' => '12:00',
                 'puntos' => [
                     ['Playón San Miguel', 'Av. Kirchner 2800', 'De 7 a 12', -26.1950, -58.1960],
                     ['Salón vecinal San Miguel', 'Calle 10 y 23', 'De 8 a 11', -26.1985, -58.2010],
@@ -36,7 +37,7 @@ class FeriaSeeder extends Seeder
             ],
             [
                 'nombre' => 'Feria Barrio Guadalupe',
-                'dias_horario' => 'Jueves y domingos de 6 a 11',
+                'direccion' => 'Av. Italia 1500', 'barrio' => 'Guadalupe', 'dias' => 'Jueves y domingos', 'hora_inicio' => '06:00', 'hora_fin' => '11:00',
                 'puntos' => [
                     ['Plaza Guadalupe', 'Av. Italia 1500', 'De 6 a 11', -26.1700, -58.1880],
                     ['Polideportivo Guadalupe', 'Av. Gutnisky 3100', 'De 7 a 10', -26.1660, -58.1950],
@@ -47,9 +48,10 @@ class FeriaSeeder extends Seeder
         $productos = Producto::all();
 
         foreach ($ferias as $i => $datos) {
+            // Ferias fijas de ejemplo; las reales (fijas e itinerantes) se cargan en PAI-139.
             $feria = Feria::create([
-                'nombre' => $datos['nombre'],
-                'dias_horario' => $datos['dias_horario'],
+                'tipo' => TipoFeria::Fija,
+                ...collect($datos)->except('puntos')->all(),
             ]);
 
             $puntos = collect($datos['puntos'])->map(fn ($p) => PuntoRetiro::create([
