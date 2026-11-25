@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('catalogo');
 
+
+
 /*
 |--------------------------------------------------------------------------
 | 2. Rutas con sesión iniciada
