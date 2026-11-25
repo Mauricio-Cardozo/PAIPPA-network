@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\CategoriaController;
 use App\Http\Controllers\Admin\FeriaController;
 use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\PuntoRetiroController;
+use App\Http\Controllers\MapaController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Feria;
 use App\Models\Feriante;
@@ -18,6 +19,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::view('/', 'welcome')->name('catalogo');
+
+// PAI-70: puntos de retiro en JSON para el mapa (pública, sin datos personales)
+Route::get('/mapa/puntos', [MapaController::class, 'puntos'])->name('mapa.puntos');
 
 /*
 |--------------------------------------------------------------------------
