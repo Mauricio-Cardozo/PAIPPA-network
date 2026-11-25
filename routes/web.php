@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoriaController;
 use App\Http\Controllers\Admin\FeriaController;
+use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\PuntoRetiroController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Feria;
@@ -61,13 +63,8 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
 
             $totalUsuarios = User::count();
 
-            // Ofertas con fechas vigentes y stock disponible
-            $totalOfertasVigentes = Oferta::query()
-                ->whereDate('disponible_desde', '<=', today())
-                ->whereDate('vigente_hasta', '>=', today())
-                ->where('cantidad_disponible', '>', 0)
-                ->whereNull('cerrada_at')
-                ->count();
+            // Ofertas vigentes: misma regla que el scope Oferta::vigentes()
+            $totalOfertasVigentes = Oferta::vigentes()->count();
 
             return view('admin.inicio', compact(
                 'totalFeriantes',
@@ -75,15 +72,17 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
                 'totalUsuarios',
                 'totalOfertasVigentes'
             ));
-
         })->name('inicio');
+
+        // PAI-54: ABM de categorías y productos (sin la página show)
+        Route::resource('categorias', CategoriaController::class)->except('show');
+        Route::resource('productos', ProductoController::class)->except('show');
 
         // PAI-48: ABM de ferias y puntos de retiro (sin la página show)
         Route::resource('ferias', FeriaController::class)->except('show');
         Route::resource('puntos-retiro', PuntoRetiroController::class)
             ->except('show')
             ->parameters(['puntos-retiro' => 'puntoRetiro']);
-
     });
 
 require __DIR__.'/auth.php';

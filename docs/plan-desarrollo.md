@@ -56,7 +56,7 @@ OpenCode puede ayudar a **redactar** el manual técnico y el README a partir del
 | `feriantes` | `user_id` nullable, único (cuenta opcional) · `feria_id` · `nombre` · `telefono_whatsapp` (formato `549XXXXXXXXXX`) · `descripcion` nullable · `validado_at` nullable · soft deletes | pertenece a `feria` y a `user`; tiene muchas `ofertas` |
 | `categorias` | `nombre` único · soft deletes | tiene muchos `productos` |
 | `productos` | `categoria_id` (restrict) · `nombre` · `unidad` (por defecto «caja») · `descripcion` nullable · soft deletes | pertenece a `categoria` |
-| `ofertas` | `feriante_id` · `producto_id` · `punto_retiro_id` · `precio_caja` decimal(10,2) · `cajas_disponibles` unsigned · `vigente_desde` date · `vigente_hasta` date · soft deletes | pertenece a `feriante`, `producto` y `punto_retiro` |
+| `ofertas` | `feriante_id` · `producto_id` · `punto_retiro_id` · `precio` decimal(10,2) (por unidad del producto) · `cantidad_disponible` decimal(10,2) · `disponible_desde` date · `vigente_hasta` date · `promocion` boolean · `entrega_domicilio` boolean · `cantidad_vendida` decimal(10,2) nullable · `cerrada_at` nullable · soft deletes (columnas renombradas en PAI-138) | pertenece a `feriante`, `producto` y `punto_retiro` |
 | `clics_whatsapp` | `user_id` · `feriante_id` · `oferta_id` nullable · `created_at` | sin contenido del mensaje; se borra a los 12 meses |
 | `consultas_producto` | `producto_id` · `user_id` nullable · `visitante` (user_id o hash del id de sesión) · `origen` (`busqueda`, `whatsapp`) · `fecha` date · `created_at` | para HU15; único (`producto_id`, `origen`, `visitante`, `fecha`) |
 | `conversaciones` (HU12, opcional) | `comprador_id` (FK `users`) · `feriante_id` | tiene muchos `mensajes` |
@@ -86,7 +86,7 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
 > **Por confirmar con el relevamiento:** el modelo supone que cada feriante está en **una sola** feria (`feriantes.feria_id`). Si un feriante puede estar en varias, hace falta una tabla pivote `feria_feriante`, y hay que decidirlo antes del esquema.
 
 **Reglas de negocio:**
-- Una oferta está **publicada** cuando su feriante está validado (`validado_at` no nulo), hoy está entre `vigente_desde` y `vigente_hasta`, tiene `cajas_disponibles > 0` y ninguno de sus registros está borrado.
+- Una oferta está **publicada** cuando su feriante está validado (`validado_at` no nulo), hoy está entre `disponible_desde` y `vigente_hasta` (los dos días incluidos), tiene `cantidad_disponible > 0`, no está cerrada (`cerrada_at` nulo) y ninguno de sus registros está borrado.
 - Para contactar por WhatsApp o enviar mensajes hay que tener una sesión iniciada.
 
 ---
@@ -252,9 +252,10 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
 ### PAI-56 · Modelo de oferta y scope de vigentes
 - **Quién:** Mauricio · **HU6** · **Depende de:** PAI-134 (esquema)
 - **Hacer:**
-  - En `Oferta`, el scope `vigentes()` (hoy entre las fechas y `cajas_disponibles > 0`) y el scope `publicadas()` (vigentes, de feriante validado, y sin feriante, producto ni punto de retiro borrados).
-  - El accessor `estado` (enum `EstadoOferta`: Publicada, Vencida, Sin stock, Feriante sin validar) con **las mismas reglas** que `publicadas()`, para que el panel y el catálogo nunca se contradigan.
+  - En `Oferta`, el scope `vigentes()` (hoy entre las fechas, `cantidad_disponible > 0` y sin `cerrada_at`) y el scope `publicadas()` (vigentes, de feriante validado, y sin feriante, producto ni punto de retiro borrados).
+  - El accessor `estado` (enum `EstadoOferta`: Publicada, Programada, Vencida, Sin stock, Cerrada, Feriante sin validar y Dada de baja) con **las mismas reglas** que `publicadas()`, para que el panel y el catálogo nunca se contradigan.
   - Comparar fechas como dice `CLAUDE.md` (sin `whereDate`).
+  - El contador «Ofertas vigentes» del panel usa `Oferta::vigentes()`.
 - **Criterios:** las reglas de negocio del modelo de datos.
 - **Pruebas:** `tests/Feature/OfertaScopesTest.php`, con un caso por cada regla, los bordes (vence hoy, empieza mañana) con `travelTo`, y que `estado` coincida con `publicadas()`.
 
