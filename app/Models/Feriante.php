@@ -12,9 +12,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /*
- * validado_at NO es fillable: solo el admin valida, con una acción propia.
+ * validado_at y validado_por NO son fillable: solo el admin valida, con una acción propia.
  */
-#[Fillable(['feria_id', 'nombre', 'telefono_whatsapp', 'descripcion'])]
+#[Fillable(['feria_id', 'nombre', 'procedencia', 'telefono_whatsapp', 'autoriza_whatsapp', 'descripcion'])]
 class Feriante extends Model
 {
     /** @use HasFactory<FerianteFactory> */
@@ -26,6 +26,7 @@ class Feriante extends Model
     {
         return [
             'validado_at' => 'datetime',
+            'autoriza_whatsapp' => 'boolean',
         ];
     }
 
@@ -37,6 +38,12 @@ class Feriante extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** El administrador que validó al feriante (RN-01). */
+    public function validadoPor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'validado_por');
     }
 
     public function ofertas(): HasMany

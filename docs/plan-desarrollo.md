@@ -51,7 +51,7 @@ OpenCode puede ayudar a **redactar** el manual técnico y el README a partir del
 | Tabla | Columnas principales | Relaciones |
 |---|---|---|
 | `users` (agregar) | `rol` (`admin`, `feriante`, `comprador`; por defecto `comprador`) · `telefono` nullable · `bloqueado_at` nullable · `bloqueado_por` nullable (FK `users`) | |
-| `ferias` | `nombre` · `descripcion` nullable · `dias_horario` · soft deletes | tiene muchos `puntos_retiro` y muchos `feriantes` |
+| `ferias` | `nombre` · `tipo` (`fija` o `itinerante`, enum `TipoFeria`) · `direccion` · `barrio` · `dias` nullable (fijas) · `fecha` nullable (itinerantes) · `hora_inicio` · `hora_fin` · `latitud`/`longitud` nullable · `descripcion` nullable · soft deletes (columnas del relevamiento en PAI-149) | tiene muchos `puntos_retiro` y muchos `feriantes` |
 | `puntos_retiro` | `feria_id` · `nombre` · `direccion` · `horario` · `latitud` decimal(10,7) · `longitud` decimal(10,7) · soft deletes | pertenece a `feria` |
 | `feriantes` | `user_id` nullable, único (cuenta opcional) · `feria_id` · `nombre` · `telefono_whatsapp` (formato `549XXXXXXXXXX`) · `descripcion` nullable · `validado_at` nullable · soft deletes | pertenece a `feria` y a `user`; tiene muchas `ofertas` |
 | `categorias` | `nombre` único · soft deletes | tiene muchos `productos` |

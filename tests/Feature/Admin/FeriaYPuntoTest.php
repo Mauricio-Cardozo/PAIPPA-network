@@ -20,7 +20,8 @@ class FeriaYPuntoTest extends TestCase
         $admin = User::factory()->admin()->create();
 
         $this->actingAs($admin)->post(route('admin.ferias.store'), [
-            'nombre' => 'Feria Centro', 'dias_horario' => 'Sábados de 7 a 12',
+            'nombre' => 'Feria Centro', 'tipo' => 'fija', 'direccion' => 'Av. 25 de Mayo 100',
+            'barrio' => 'Centro', 'dias' => 'Sábados', 'hora_inicio' => '07:00', 'hora_fin' => '12:00',
         ])->assertRedirect(route('admin.ferias.index'));
 
         $feria = Feria::firstOrFail();
