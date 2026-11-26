@@ -3,8 +3,10 @@
 use App\Http\Controllers\Admin\CategoriaController;
 use App\Http\Controllers\Admin\FeriaController;
 use App\Http\Controllers\Admin\FerianteController;
+use App\Http\Controllers\Admin\OfertaController;
 use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\PuntoRetiroController;
+use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\MapaController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Feria;
@@ -19,7 +21,8 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::view('/', 'welcome')->name('catalogo');
+// PAI-61: catálogo público con las ofertas publicadas
+Route::get('/', [CatalogoController::class, 'index'])->name('catalogo');
 
 // PAI-70: puntos de retiro en JSON para el mapa (pública, sin datos personales)
 Route::get('/mapa/puntos', [MapaController::class, 'puntos'])->name('mapa.puntos');
@@ -93,6 +96,10 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
         Route::resource('feriantes', FerianteController::class)->except('show');
         Route::patch('feriantes/{feriante}/validar', [FerianteController::class, 'validar'])->name('feriantes.validar');
         Route::patch('feriantes/{feriante}/invalidar', [FerianteController::class, 'invalidar'])->name('feriantes.invalidar');
+
+        // PAI-57 y PAI-58: carga de ofertas y actualización rápida de cantidad y vigencia
+        Route::resource('ofertas', OfertaController::class)->except('show');
+        Route::patch('ofertas/{oferta}/stock', [OfertaController::class, 'stock'])->name('ofertas.stock');
     });
 
 require __DIR__.'/auth.php';
