@@ -146,26 +146,28 @@
     {{-- Acciones --}}
     <div class="mt-auto grid grid-cols-2 gap-2">
 
-        <button
-            type="button"
-            disabled
+        {{-- PAI-68: enlace al perfil público del feriante --}}
+        <a
+            href="{{ route('feriantes.show', $oferta->feriante) }}"
             class="rounded-xl bg-paippa-green
-                   px-3 py-3 text-sm font-semibold
-                   text-white opacity-70"
+                   px-3 py-3 text-center text-sm font-semibold
+                   text-white transition hover:opacity-90"
         >
             Ver feriante
-        </button>
+        </a>
 
-        <button
-            type="button"
-            disabled
+        {{-- Abre el punto de retiro en Google Maps con sus coordenadas --}}
+        <a
+            href="https://www.google.com/maps/search/?api=1&query={{ $oferta->puntoRetiro->latitud }},{{ $oferta->puntoRetiro->longitud }}"
+            target="_blank"
+            rel="noopener"
             class="rounded-xl border border-paippa-green
-                   bg-white px-3 py-3 text-sm
+                   bg-white px-3 py-3 text-center text-sm
                    font-semibold text-paippa-green
-                   opacity-70"
+                   transition hover:bg-green-50"
         >
             Ubicación
-        </button>
+        </a>
 
     </div>
 
@@ -173,15 +175,17 @@
     {{-- WhatsApp --}}
     @auth
 
-        <button
-            type="button"
-            disabled
-            class="w-full rounded-xl bg-paippa-green
-                   px-4 py-3 text-sm font-semibold
-                   text-white opacity-70"
+        {{-- PAI-75: registra el clic y abre WhatsApp con el mensaje armado --}}
+        <a
+            href="{{ route('contacto.whatsapp', $oferta) }}"
+            target="_blank"
+            rel="noopener"
+            class="block w-full rounded-xl bg-paippa-green
+                   px-4 py-3 text-center text-sm font-semibold
+                   text-white transition hover:opacity-90"
         >
             Contactar por WhatsApp
-        </button>
+        </a>
 
     @else
 
