@@ -29,6 +29,20 @@ Route::get('/', [CatalogoController::class, 'index'])->name('catalogo');
 // PAI-70: puntos de retiro en JSON para el mapa (pública, sin datos personales)
 Route::get('/mapa/puntos', [MapaController::class, 'puntos'])->name('mapa.puntos');
 
+
+// PAI-76: guarda el contacto como destino y envía al visitante al login.
+Route::get('/login/contacto/{oferta}', function (Oferta $oferta) {
+    session()->put(
+        'url.intended',
+        route('contacto.whatsapp', $oferta)
+    );
+
+    return redirect()->route('login');
+})
+    ->middleware('guest')
+    ->name('contacto.login');
+    
+
 /*
 |--------------------------------------------------------------------------
 | 2. Rutas con sesión iniciada
