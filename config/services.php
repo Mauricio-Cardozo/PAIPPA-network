@@ -14,6 +14,11 @@ return [
     |
     */
 
+    // RN-06: a dónde va el contacto si el feriante no autoriza mostrar su número.
+    'paippa' => [
+        'whatsapp_comercializacion' => env('PAIPPA_WHATSAPP_COMERCIALIZACION'),
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],
