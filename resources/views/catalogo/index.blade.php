@@ -129,12 +129,27 @@
             </div>
 
 
-            {{--
-                PAI-63:
-                acá se agregarán el buscador
-                y los filtros del wireframe.
-            --}}
+            @php
+      
+            $categoriasFiltro = $categorias
+            ?? $ofertas->getCollection()
+            ->pluck('producto.categoria')
+            ->filter()
+            ->unique('id')
+            ->sortBy('nombre');
 
+            $feriasFiltro = $ferias
+            ?? $ofertas->getCollection()
+            ->pluck('feriante.feria')
+            ->filter()
+            ->unique('id')
+            ->sortBy('nombre');
+            @endphp
+
+
+            <x-filtros-catalogo
+                :categorias="$categoriasFiltro"
+                :ferias="$feriasFiltro" />
 
             {{-- Tarjetas --}}
             @forelse ($ofertas as $oferta)
@@ -163,7 +178,7 @@
 
             @empty
 
-            {{-- Wireframe: catálogo sin resultados --}}
+            {{-- catálogo sin resultados --}}
             <section
                 class="rounded-2xl border border-[#DDE4D3]
                            bg-white px-6 py-12 text-center">
