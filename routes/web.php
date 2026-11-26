@@ -29,7 +29,6 @@ Route::get('/', [CatalogoController::class, 'index'])->name('catalogo');
 // PAI-70: puntos de retiro en JSON para el mapa (pública, sin datos personales)
 Route::get('/mapa/puntos', [MapaController::class, 'puntos'])->name('mapa.puntos');
 
-
 // PAI-76: guarda el contacto como destino y envía al visitante al login.
 Route::get('/login/contacto/{oferta}', function (Oferta $oferta) {
     session()->put(
@@ -41,7 +40,6 @@ Route::get('/login/contacto/{oferta}', function (Oferta $oferta) {
 })
     ->middleware('guest')
     ->name('contacto.login');
-    
 
 /*
 |--------------------------------------------------------------------------
