@@ -3,6 +3,12 @@
 'ferias' => collect(),
 ])
 
+@php
+    // PAI-64: si alguien manda un arreglo en la URL (?categoria[]=1), se toma como vacío
+    // en lugar de romper la vista con un error 500.
+    $filtro = fn (string $campo): string => is_string(request($campo)) ? request($campo) : '';
+@endphp
+
 <form
     method="GET"
     action="{{ route('catalogo') }}"
@@ -35,7 +41,7 @@
             <input
                 type="search"
                 name="q"
-                value="{{ request('q') }}"
+                value="{{ $filtro('q') }}"
                 placeholder="Buscar producto..."
                 class="w-full rounded-xl border-[#DDE4D3]
                        bg-white py-3 pl-12 pr-4
@@ -105,7 +111,7 @@
 
                 <option
                     value="{{ $categoria->id }}"
-                    @selected((string) request('categoria')===(string) $categoria->id)
+                    @selected($filtro('categoria') === (string) $categoria->id)
                     >
                     {{ $categoria->nombre }}
                 </option>
@@ -143,7 +149,7 @@
 
                 <option
                     value="{{ $feria->id }}"
-                    @selected((string) request('feria')===(string) $feria->id)
+                    @selected($filtro('feria') === (string) $feria->id)
                     >
                     {{ $feria->nombre }}
                 </option>
@@ -170,7 +176,7 @@
                 name="precio_max"
                 min="0"
                 step="0.01"
-                value="{{ request('precio_max') }}"
+                value="{{ $filtro('precio_max') }}"
                 placeholder="$ Máximo"
                 class="w-full rounded-xl border-[#DDE4D3]
                        bg-white px-3 py-2.5
