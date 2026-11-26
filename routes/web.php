@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\OfertaController;
 use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\PuntoRetiroController;
 use App\Http\Controllers\CatalogoController;
+use App\Http\Controllers\ContactoController;
 use App\Http\Controllers\MapaController;
 use App\Http\Controllers\PerfilFerianteController;
 use App\Http\Controllers\ProfileController;
@@ -50,6 +51,10 @@ Route::middleware(['auth', 'sin-cache'])->group(function () {
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
+
+    // PAI-75: registra el clic y redirige a WhatsApp con el mensaje armado (PAI-74)
+    Route::get('/contacto/whatsapp/{oferta}', [ContactoController::class, 'whatsapp'])
+        ->name('contacto.whatsapp');
 });
 
 /*
