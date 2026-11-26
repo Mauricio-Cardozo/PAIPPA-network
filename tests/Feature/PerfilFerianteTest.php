@@ -66,4 +66,14 @@ class PerfilFerianteTest extends TestCase
 
         $this->assertSame($conUna, $conSeis); // sin N+1
     }
+
+    #[Test]
+    public function la_tarjeta_del_catalogo_enlaza_al_perfil_del_feriante(): void
+    {
+        $oferta = Oferta::factory()->create();
+
+        $this->get(route('catalogo'))
+            ->assertOk()
+            ->assertSee(route('feriantes.show', $oferta->feriante), false);
+    }
 }
