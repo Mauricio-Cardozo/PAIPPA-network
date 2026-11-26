@@ -123,10 +123,10 @@ class TablasDisenoTest extends TestCase
     #[Test]
     public function la_configuracion_devuelve_el_valor_o_el_valor_por_defecto(): void
     {
-        Configuracion::create(['clave' => 'comercializacion_whatsapp', 'valor' => '5493700000000']);
+        Configuracion::create(['clave' => 'dias_vigencia_oferta', 'valor' => '7']);
         Configuracion::create(['clave' => 'vacia', 'valor' => '']);
 
-        $this->assertSame('5493700000000', Configuracion::valor('comercializacion_whatsapp'));
+        $this->assertSame('7', Configuracion::valor('dias_vigencia_oferta'));
         $this->assertSame('x', Configuracion::valor('vacia', 'x'));
         $this->assertNull(Configuracion::valor('no_existe'));
     }

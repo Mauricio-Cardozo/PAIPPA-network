@@ -9,6 +9,8 @@ use Illuminate\Database\Seeder;
 
 /**
  * PAI-152: medios de pago y parámetros del sistema.
+ * El WhatsApp de Comercialización no va acá: está en el .env
+ * (PAIPPA_WHATSAPP_COMERCIALIZACION, PAI-74).
  * Corre después de FeriaSeeder para asignarles medios de pago a los feriantes.
  */
 class SistemaSeeder extends Seeder
@@ -27,14 +29,10 @@ class SistemaSeeder extends Seeder
             );
         }
 
-        // Parámetros: el valor real lo carga el PAIPPA. No se ponen teléfonos
-        // reales en el código.
+        // RN-05: la oferta vence a los 7 días sin actualizarse.
         Configuracion::firstOrCreate(
-            ['clave' => 'comercializacion_whatsapp'],
-            [
-                'valor' => null,
-                'descripcion' => 'WhatsApp del área de Comercialización del PAIPPA (549 + código de área + número). Se usa cuando el feriante no autoriza mostrar su número (RN-06).',
-            ],
+            ['clave' => 'dias_vigencia_oferta'],
+            ['valor' => '7', 'descripcion' => 'Días sin actualizar después de los que vence una oferta (RN-05).'],
         );
     }
 }

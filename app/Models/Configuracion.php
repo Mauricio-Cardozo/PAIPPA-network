@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Parámetros del sistema como clave y valor, que el PAIPPA puede cambiar sin
- * tocar el código. Ejemplo: Configuracion::valor('comercializacion_whatsapp').
+ * tocar el código. Ejemplo: Configuracion::valor('dias_vigencia_oferta', '7').
  */
 #[Fillable(['clave', 'valor', 'descripcion'])]
 class Configuracion extends Model

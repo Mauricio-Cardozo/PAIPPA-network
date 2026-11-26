@@ -6,9 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * PAI-152: parámetros del sistema que el PAIPPA puede cambiar sin tocar el
- * código, como clave y valor. Por ejemplo, el WhatsApp del área de
- * Comercialización, al que se deriva el contacto cuando el feriante no
- * autoriza mostrar su número (RN-06).
+ * código, como clave y valor (tabla «configuracion» del diseño).
+ * Los datos sensibles o de despliegue (como el WhatsApp de Comercialización,
+ * PAIPPA_WHATSAPP_COMERCIALIZACION) siguen en el .env, no acá.
  */
 return new class extends Migration
 {
