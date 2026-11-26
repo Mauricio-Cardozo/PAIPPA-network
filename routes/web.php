@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\PuntoRetiroController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\MapaController;
+use App\Http\Controllers\PerfilFerianteController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Feria;
 use App\Models\Feriante;
@@ -101,5 +102,8 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
         Route::resource('ofertas', OfertaController::class)->except('show');
         Route::patch('ofertas/{oferta}/stock', [OfertaController::class, 'stock'])->name('ofertas.stock');
     });
+
+// PAI-68: perfil público del feriante (solo validados)
+Route::get('/feriantes/{feriante}', [PerfilFerianteController::class, 'show'])->name('feriantes.show');
 
 require __DIR__.'/auth.php';
