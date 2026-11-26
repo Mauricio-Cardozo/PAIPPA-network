@@ -11,8 +11,17 @@ use App\Models\PuntoRetiro;
 use Illuminate\Database\Seeder;
 
 /**
- * Ferias, puntos de retiro, feriantes y ofertas de EJEMPLO.
- * Los nombres y teléfonos son ficticios; las coordenadas están en Formosa Capital.
+ * Ferias del relevamiento con el PAIPPA (Relevamiento_Grupo14, PAIPPA 2 y 3;
+ * ERS RE-04): tres ferias fijas los viernes y una itinerante de ejemplo.
+ *
+ * Datos a confirmar con el PAIPPA:
+ * - El horario: el relevamiento solo informa el día (viernes). Queda vacío y el
+ *   admin lo completa desde el panel.
+ * - Las coordenadas son APROXIMADAS, para que el mapa muestre los puntos.
+ * - La feria itinerante es de ejemplo: el relevamiento dice que hay ferias
+ *   itinerantes en distintos barrios, pero no cuáles.
+ *
+ * Los feriantes y las ofertas son de ejemplo, con nombres y teléfonos ficticios.
  */
 class FeriaSeeder extends Seeder
 {
@@ -20,27 +29,35 @@ class FeriaSeeder extends Seeder
     {
         $ferias = [
             [
-                'nombre' => 'Feria Centro',
-                'direccion' => 'Av. 25 de Mayo y Moreno', 'barrio' => 'Centro', 'dias' => 'Miércoles y sábados', 'hora_inicio' => '06:00', 'hora_fin' => '12:00',
+                'nombre' => 'Feria del B° La Paz',
+                'tipo' => TipoFeria::Fija,
+                'direccion' => 'B° La Paz', 'barrio' => 'La Paz', 'dias' => 'Viernes',
                 'puntos' => [
-                    ['Plaza San Martín', 'Av. 25 de Mayo y Moreno', 'De 6 a 12', -26.1857, -58.1756],
-                    ['Galpón Centro', 'Belgrano 450', 'De 7 a 11', -26.1834, -58.1730],
+                    ['Feria del B° La Paz', 'B° La Paz', 'Viernes (horario a confirmar)', -26.1985, -58.2085],
                 ],
             ],
             [
-                'nombre' => 'Feria Barrio San Miguel',
-                'direccion' => 'Av. Kirchner 2800', 'barrio' => 'San Miguel', 'dias' => 'Martes y viernes', 'hora_inicio' => '07:00', 'hora_fin' => '12:00',
+                'nombre' => 'Feria del playón del PAIPPA',
+                'tipo' => TipoFeria::Fija,
+                'direccion' => 'Padre Grotti 1040', 'barrio' => 'Centro', 'dias' => 'Viernes',
                 'puntos' => [
-                    ['Playón San Miguel', 'Av. Kirchner 2800', 'De 7 a 12', -26.1950, -58.1960],
-                    ['Salón vecinal San Miguel', 'Calle 10 y 23', 'De 8 a 11', -26.1985, -58.2010],
+                    ['Playón del PAIPPA', 'Padre Grotti 1040', 'Viernes (horario a confirmar)', -26.1932, -58.1882],
                 ],
             ],
             [
-                'nombre' => 'Feria Barrio Guadalupe',
-                'direccion' => 'Av. Italia 1500', 'barrio' => 'Guadalupe', 'dias' => 'Jueves y domingos', 'hora_inicio' => '06:00', 'hora_fin' => '11:00',
+                'nombre' => 'Feria del B° La Nueva Formosa',
+                'tipo' => TipoFeria::Fija,
+                'direccion' => 'Centro Comunitario del B° La Nueva Formosa', 'barrio' => 'La Nueva Formosa', 'dias' => 'Viernes',
                 'puntos' => [
-                    ['Plaza Guadalupe', 'Av. Italia 1500', 'De 6 a 11', -26.1700, -58.1880],
-                    ['Polideportivo Guadalupe', 'Av. Gutnisky 3100', 'De 7 a 10', -26.1660, -58.1950],
+                    ['Centro Comunitario La Nueva Formosa', 'Centro Comunitario del B° La Nueva Formosa', 'Viernes (horario a confirmar)', -26.2058, -58.2271],
+                ],
+            ],
+            [
+                'nombre' => 'Feria itinerante (ejemplo)',
+                'tipo' => TipoFeria::Itinerante,
+                'direccion' => 'Plaza del B° Guadalupe', 'barrio' => 'Guadalupe', 'fecha' => today()->next('Wednesday')->toDateString(),
+                'puntos' => [
+                    ['Plaza del B° Guadalupe', 'Plaza del B° Guadalupe', 'Fecha y horario a confirmar', -26.1700, -58.1880],
                 ],
             ],
         ];
@@ -48,11 +65,7 @@ class FeriaSeeder extends Seeder
         $productos = Producto::all();
 
         foreach ($ferias as $i => $datos) {
-            // Ferias fijas de ejemplo; las reales (fijas e itinerantes) se cargan en PAI-139.
-            $feria = Feria::create([
-                'tipo' => TipoFeria::Fija,
-                ...collect($datos)->except('puntos')->all(),
-            ]);
+            $feria = Feria::create(collect($datos)->except('puntos')->all());
 
             $puntos = collect($datos['puntos'])->map(fn ($p) => PuntoRetiro::create([
                 'feria_id' => $feria->id,
@@ -63,8 +76,14 @@ class FeriaSeeder extends Seeder
                 'longitud' => $p[4],
             ]));
 
-            // 10 feriantes en total (4 + 3 + 3); los dos últimos sin validar.
-            $cantidad = $i === 0 ? 4 : 3;
+            // 10 feriantes en las ferias fijas (4 + 3 + 3); los dos últimos sin
+            // validar. La itinerante queda sin feriantes: cada feriante tiene una
+            // sola feria (feriantes.feria_id).
+            $cantidad = match ($i) {
+                0 => 4,
+                1, 2 => 3,
+                default => 0,
+            };
 
             for ($n = 1; $n <= $cantidad; $n++) {
                 $numero = Feriante::count() + 1;
