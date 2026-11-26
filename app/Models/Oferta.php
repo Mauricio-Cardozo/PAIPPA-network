@@ -83,6 +83,29 @@ class Oferta extends Model
     }
 
     /**
+     * PAI-64: filtros del catálogo. Cada filtro se aplica solo si viene,
+     * y se pueden combinar. Los valores ya llegan validados (CatalogoRequest).
+     *
+     * @param  array{q?: ?string, categoria?: ?int, feria?: ?int, precio_max?: ?float}  $filtros
+     */
+    public function scopeFiltrar(Builder $query, array $filtros): void
+    {
+        $query
+            // Texto: busca en el nombre del producto (con bindings, sin SQL armado a mano).
+            ->when($filtros['q'] ?? null, fn (Builder $q, string $texto) => $q->whereHas(
+                'producto', fn (Builder $p) => $p->where('nombre', 'like', '%'.$texto.'%')
+            ))
+            ->when($filtros['categoria'] ?? null, fn (Builder $q, int $id) => $q->whereHas(
+                'producto', fn (Builder $p) => $p->where('categoria_id', $id)
+            ))
+            // La feria de la oferta es la de su punto de retiro.
+            ->when($filtros['feria'] ?? null, fn (Builder $q, int $id) => $q->whereHas(
+                'puntoRetiro', fn (Builder $p) => $p->where('feria_id', $id)
+            ))
+            ->when($filtros['precio_max'] ?? null, fn (Builder $q, float $max) => $q->where('precio', '<=', $max));
+    }
+
+    /**
      * Estado de la oferta para mostrar en el panel. Sigue las mismas reglas
      * que vigentes() y publicadas(): si cambia una, hay que cambiar la otra.
      */
