@@ -34,6 +34,7 @@
     };
 @endphp
 
+
 <article
     class="flex h-full flex-col gap-3 rounded-2xl
            border border-gray-200 bg-white p-3 shadow-sm"
@@ -44,6 +45,7 @@
         class="flex h-52 items-center justify-center
                rounded-xl bg-green-50"
     >
+
         <div class="text-center">
 
             <div
@@ -60,6 +62,7 @@
             </p>
 
         </div>
+
     </div>
 
 
@@ -81,6 +84,7 @@
     <div class="space-y-2 text-sm">
 
         <div class="flex justify-between gap-4">
+
             <span class="text-gray-500">
                 Precio estimado
             </span>
@@ -88,10 +92,12 @@
             <span class="font-semibold text-gray-900">
                 ${{ number_format((float) $oferta->precio, 0, ',', '.') }}/{{ $abreviatura }}
             </span>
+
         </div>
 
 
         <div class="flex justify-between gap-4">
+
             <span class="text-gray-500">
                 Cantidad
             </span>
@@ -99,10 +105,12 @@
             <span class="font-semibold text-gray-900">
                 {{ $cantidadFormateada }} {{ $unidadCantidad }}
             </span>
+
         </div>
 
 
         <div class="flex justify-between gap-4">
+
             <span class="text-gray-500">
                 Feria
             </span>
@@ -110,10 +118,12 @@
             <span class="text-right font-semibold text-gray-900">
                 {{ $oferta->feriante->feria?->nombre ?? 'Sin feria' }}
             </span>
+
         </div>
 
 
         <div class="flex justify-between gap-4">
+
             <span class="text-gray-500">
                 Feriante
             </span>
@@ -121,17 +131,23 @@
             <span class="text-right font-semibold text-gray-900">
                 {{ $oferta->feriante->nombre }}
             </span>
+
         </div>
 
 
         <div class="flex justify-between gap-4">
+
             <span class="text-gray-500">
                 Retiro
             </span>
 
-            <span class="max-w-[65%] text-right font-semibold text-gray-900">
+            <span
+                class="max-w-[65%] text-right
+                       font-semibold text-gray-900"
+            >
                 {{ $oferta->puntoRetiro->direccion }}
             </span>
+
         </div>
 
     </div>
@@ -146,24 +162,26 @@
     {{-- Acciones --}}
     <div class="mt-auto grid grid-cols-2 gap-2">
 
-        {{-- PAI-68: enlace al perfil público del feriante --}}
+        {{-- Perfil público del feriante --}}
         <a
             href="{{ route('feriantes.show', $oferta->feriante) }}"
             class="rounded-xl bg-paippa-green
-                   px-3 py-3 text-center text-sm font-semibold
-                   text-white transition hover:opacity-90"
+                   px-3 py-3 text-center text-sm
+                   font-semibold text-white
+                   transition hover:opacity-90"
         >
             Ver feriante
         </a>
 
-        {{-- Abre el punto de retiro en Google Maps con sus coordenadas --}}
+
+        {{-- Ubicación del punto de retiro --}}
         <a
             href="https://www.google.com/maps/search/?api=1&query={{ $oferta->puntoRetiro->latitud }},{{ $oferta->puntoRetiro->longitud }}"
             target="_blank"
             rel="noopener"
             class="rounded-xl border border-paippa-green
-                   bg-white px-3 py-3 text-center text-sm
-                   font-semibold text-paippa-green
+                   bg-white px-3 py-3 text-center
+                   text-sm font-semibold text-paippa-green
                    transition hover:bg-green-50"
         >
             Ubicación
@@ -172,34 +190,10 @@
     </div>
 
 
-    {{-- WhatsApp --}}
-    @auth
-
-        {{-- PAI-75: registra el clic y abre WhatsApp con el mensaje armado --}}
-        <a
-            href="{{ route('contacto.whatsapp', $oferta) }}"
-            target="_blank"
-            rel="noopener"
-            class="block w-full rounded-xl bg-paippa-green
-                   px-4 py-3 text-center text-sm font-semibold
-                   text-white transition hover:opacity-90"
-        >
-            Contactar por WhatsApp
-        </a>
-
-    @else
-
-        <a
-            href="{{ route('login') }}"
-            class="block w-full rounded-xl border
-                   border-paippa-green bg-white
-                   px-4 py-3 text-center text-sm
-                   font-semibold text-paippa-green
-                   transition hover:bg-green-50"
-        >
-            Iniciá sesión para contactar
-        </a>
-
-    @endauth
+    {{-- PAI-76: botón reutilizable de WhatsApp --}}
+    <x-boton-whatsapp
+        :oferta="$oferta"
+        class="w-full"
+    />
 
 </article>

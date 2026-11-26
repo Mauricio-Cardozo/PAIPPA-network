@@ -283,38 +283,19 @@
                 </div>
 
 
-                {{-- WhatsApp --}}
+
+                {{-- contacto por WhatsApp --}}
+                @if ($ofertas->isNotEmpty())
+
                 <div class="mt-6">
 
-                    @auth
-
-                    <button
-                        type="button"
-                        disabled
-                        class="w-full rounded-xl bg-paippa-green
-                                   px-4 py-3 text-sm font-semibold
-                                   text-white opacity-70
-                                   sm:w-auto">
-                        Contactar por WhatsApp
-                    </button>
-
-                    @else
-
-                    <a
-                        href="{{ route('login') }}"
-                        class="inline-block w-full rounded-xl
-                                   border border-paippa-green
-                                   bg-white px-4 py-3 text-center
-                                   text-sm font-semibold
-                                   text-paippa-green
-                                   transition hover:bg-green-50
-                                   sm:w-auto">
-                        Iniciá sesión para contactar
-                    </a>
-
-                    @endauth
+                    <x-boton-whatsapp
+                        :oferta="$ofertas->first()"
+                        class="w-full sm:w-auto" />
 
                 </div>
+
+                @endif
 
             </section>
 
