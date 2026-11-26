@@ -419,6 +419,7 @@ Recordá que, como casi todo usa borrado lógico, estas reglas actúan solo si a
   - Registrar con `origen = busqueda` cuando el catálogo se filtra por texto o categoría (un registro por producto distinto en la primera página de resultados, máximo 12), y con `origen = whatsapp` en cada clic de PAI-75, usando `insertOrIgnore` para que un duplicado no rompa ni cuente dos veces.
   - `const UPDATED_AT = null;` en el modelo.
 - **Antes de empezar:** confirmar con la ERS qué cuenta como «consulta». Esta es una propuesta.
+- **Ya hecho por Mauricio (datos):** la migración `consultas_producto`, el modelo `ConsultaProducto` (con `ConsultaProducto::visitante($user, $idSesion)` para armar el `visitante`), el enum `OrigenConsulta` (`Busqueda`, `Whatsapp`), la factory y las pruebas de la tabla. Falta registrar las consultas desde el catálogo y desde el clic de WhatsApp.
 
 ### PAI-90 · Panel de indicadores con filtro de fechas
 - **Quién:** Lucas · **HU15** · **Depende de:** PAI-89
