@@ -23,13 +23,16 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// PAI-61: catálogo público con las ofertas publicadas
+// catálogo público con las ofertas publicadas
 Route::get('/', [CatalogoController::class, 'index'])->name('catalogo');
 
-// PAI-70: puntos de retiro en JSON para el mapa (pública, sin datos personales)
+// puntos de retiro en JSON para el mapa (pública, sin datos personales)
 Route::get('/mapa/puntos', [MapaController::class, 'puntos'])->name('mapa.puntos');
 
-// PAI-76: guarda el contacto como destino y envía al visitante al login.
+// vista pública del mapa con Leaflet y OpenStreetMap.
+Route::view('/mapa', 'mapa')->name('mapa');
+
+// guarda el contacto como destino y envía al visitante al login.
 Route::get('/login/contacto/{oferta}', function (Oferta $oferta) {
     session()->put(
         'url.intended',
@@ -64,7 +67,7 @@ Route::middleware(['auth', 'sin-cache'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
 
-    // PAI-75: registra el clic y redirige a WhatsApp con el mensaje armado (PAI-74)
+    //  registra el clic y redirige a WhatsApp con el mensaje armado (PAI-74)
     Route::get('/contacto/whatsapp/{oferta}', [ContactoController::class, 'whatsapp'])
         ->name('contacto.whatsapp');
 });
@@ -100,27 +103,27 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
             ));
         })->name('inicio');
 
-        // PAI-54: ABM de categorías y productos (sin la página show)
+        //  ABM de categorías y productos (sin la página show)
         Route::resource('categorias', CategoriaController::class)->except('show');
         Route::resource('productos', ProductoController::class)->except('show');
 
-        // PAI-48: ABM de ferias y puntos de retiro (sin la página show)
+        //  ABM de ferias y puntos de retiro (sin la página show)
         Route::resource('ferias', FeriaController::class)->except('show');
         Route::resource('puntos-retiro', PuntoRetiroController::class)
             ->except('show')
             ->parameters(['puntos-retiro' => 'puntoRetiro']);
 
-        // PAI-49: ABM de feriantes, con validar e invalidar como acciones aparte
+        //  ABM de feriantes, con validar e invalidar como acciones aparte
         Route::resource('feriantes', FerianteController::class)->except('show');
         Route::patch('feriantes/{feriante}/validar', [FerianteController::class, 'validar'])->name('feriantes.validar');
         Route::patch('feriantes/{feriante}/invalidar', [FerianteController::class, 'invalidar'])->name('feriantes.invalidar');
 
-        // PAI-57 y PAI-58: carga de ofertas y actualización rápida de cantidad y vigencia
+        // carga de ofertas y actualización rápida de cantidad y vigencia
         Route::resource('ofertas', OfertaController::class)->except('show');
         Route::patch('ofertas/{oferta}/stock', [OfertaController::class, 'stock'])->name('ofertas.stock');
     });
 
-// PAI-68: perfil público del feriante (solo validados)
+// perfil público del feriante (solo validados)
 Route::get('/feriantes/{feriante}', [PerfilFerianteController::class, 'show'])->name('feriantes.show');
 
 require __DIR__.'/auth.php';
