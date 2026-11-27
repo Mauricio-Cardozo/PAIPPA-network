@@ -44,21 +44,21 @@ OpenCode puede ayudar a **redactar** el manual técnico y el README a partir del
 
 ---
 
-## Modelo de datos propuesto
+## Modelo de datos
 
-> **Es una propuesta para arrancar.** Cuando Mauricio cierre el DER (PAI-18), se corrige esta sección y se guardan `docs/DER.png` y `docs/diccionario.xlsx`. Si el DER dice otra cosa, manda el DER.
+> **Actualizado el 26/11/2026 contra las migraciones de `develop`.** Las tablas de HU12 (`conversaciones` y `mensajes`) siguen siendo una propuesta: no tienen migración porque HU12 es opcional. Si el DER dice otra cosa, manda el DER.
 
 | Tabla | Columnas principales | Relaciones |
 |---|---|---|
 | `users` (agregar) | `rol` (`admin`, `feriante`, `comprador`; por defecto `comprador`) · `telefono` nullable · `bloqueado_at` nullable · `bloqueado_por` nullable (FK `users`) | |
 | `ferias` | `nombre` · `tipo` (`fija` o `itinerante`, enum `TipoFeria`) · `direccion` · `barrio` · `dias` nullable (fijas) · `fecha` nullable (itinerantes) · `hora_inicio` · `hora_fin` · `latitud`/`longitud` nullable · `descripcion` nullable · soft deletes (columnas del relevamiento en PAI-149) | tiene muchos `puntos_retiro` y muchos `feriantes` |
 | `puntos_retiro` | `feria_id` · `nombre` · `direccion` · `horario` · `latitud` decimal(10,7) · `longitud` decimal(10,7) · soft deletes | pertenece a `feria` |
-| `feriantes` | `user_id` nullable, único (cuenta opcional) · `feria_id` · `nombre` · `telefono_whatsapp` (formato `549XXXXXXXXXX`) · `descripcion` nullable · `validado_at` nullable · soft deletes | pertenece a `feria` y a `user`; tiene muchas `ofertas` |
-| `categorias` | `nombre` único · soft deletes | tiene muchos `productos` |
-| `productos` | `categoria_id` (restrict) · `nombre` · `unidad` (por defecto «caja») · `descripcion` nullable · soft deletes | pertenece a `categoria` |
+| `feriantes` | `user_id` nullable, único (cuenta opcional) · `feria_id` · `nombre` · `procedencia` nullable (localidad o colonia; el formulario la pide) · `telefono_whatsapp` (formato `549XXXXXXXXXX`) · `autoriza_whatsapp` boolean (por defecto `false`) · `descripcion` nullable · `validado_at` nullable · `validado_por` nullable (FK `users`) · soft deletes (columnas del relevamiento en PAI-49) | pertenece a `feria` y a `user`; tiene muchas `ofertas` |
+| `categorias` | `nombre` (único entre los activos, ver «Únicos») · soft deletes | tiene muchos `productos` |
+| `productos` | `categoria_id` (restrict) · `nombre` · `unidad` (enum `Unidad`: `kilo`, `atado`, `bolsa`, `caja`, `docena`, `unidad`, `maple`, `frasco`; por defecto `caja`) · `descripcion` nullable · soft deletes | pertenece a `categoria` |
 | `ofertas` | `feriante_id` · `producto_id` · `punto_retiro_id` · `precio` decimal(10,2) (por unidad del producto) · `cantidad_disponible` decimal(10,2) · `disponible_desde` date · `vigente_hasta` date · `promocion` boolean · `entrega_domicilio` boolean · `cantidad_vendida` decimal(10,2) nullable · `cerrada_at` nullable · soft deletes (columnas renombradas en PAI-138) | pertenece a `feriante`, `producto` y `punto_retiro` |
 | `clics_whatsapp` | `user_id` · `feriante_id` · `oferta_id` nullable · `created_at` | sin contenido del mensaje; se borra a los 12 meses |
-| `consultas_producto` | `producto_id` · `user_id` nullable · `visitante` (user_id o hash del id de sesión) · `origen` (`busqueda`, `whatsapp`) · `fecha` date · `created_at` | para HU15; único (`producto_id`, `origen`, `visitante`, `fecha`) |
+| `consultas_producto` | `producto_id` · `user_id` nullable · `visitante` (`user:{id}` o el hash sha256 del id de sesión) · `origen` (enum `OrigenConsulta`: `busqueda`, `whatsapp`) · `fecha` date · `created_at` | para HU15; único (`producto_id`, `origen`, `visitante`, `fecha`) e índice (`fecha`, `producto_id`) |
 | `conversaciones` (HU12, opcional) | `comprador_id` (FK `users`) · `feriante_id` | tiene muchos `mensajes` |
 | `mensajes` (HU12, opcional) | `conversacion_id` · `user_id` (remitente) · `cuerpo` · `leido_at` nullable | |
 
@@ -71,6 +71,7 @@ OpenCode puede ayudar a **redactar** el manual técnico y el README a partir del
 | `puntos_retiro.feria_id` | `restrict` | Una feria con puntos no se borra |
 | `feriantes.feria_id` | `restrict` | Ídem |
 | `feriantes.user_id` | `nullOnDelete` | Si se borra la cuenta, el feriante queda sin cuenta |
+| `feriantes.validado_por` | `nullOnDelete` | Si se borra el admin, la validación sigue valiendo |
 | `productos.categoria_id` | `restrict` | |
 | `ofertas.feriante_id`, `ofertas.producto_id`, `ofertas.punto_retiro_id` | `restrict` | Las ofertas son historial |
 | `clics_whatsapp.user_id`, `clics_whatsapp.feriante_id` | `cascade` | Son registros derivados |
