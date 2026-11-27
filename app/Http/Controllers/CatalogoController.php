@@ -33,7 +33,11 @@ class CatalogoController extends Controller
             'ofertas' => $ofertas,
             // Listas para los selectores del formulario de filtros.
             'categorias' => Categoria::orderBy('nombre')->get(['id', 'nombre']),
-            'ferias' => Feria::orderBy('nombre')->get(['id', 'nombre']),
+            // Las itinerantes que ya pasaron no se ofrecen en el filtro.
+            'ferias' => Feria::proximas()->orderBy('nombre')->get(['id', 'nombre']),
+            // PAI-151: días y horarios para «Cómo comprar».
+            'feriasHorarios' => Feria::proximas()->orderBy('nombre')->get(),
+            'whatsappPaippa' => config('services.paippa.whatsapp_comercializacion') ?: null,
         ]);
     }
 }

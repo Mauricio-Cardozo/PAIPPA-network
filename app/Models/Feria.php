@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\TipoFeria;
 use Database\Factories\FeriaFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -40,6 +41,17 @@ class Feria extends Model
     public function feriantes(): HasMany
     {
         return $this->hasMany(Feriante::class);
+    }
+
+    /**
+     * PAI-151: las ferias fijas y las itinerantes que todavía no pasaron
+     * (hoy incluido). Es lo que se muestra en «Cómo comprar».
+     */
+    public function scopeProximas(Builder $query): Builder
+    {
+        return $query->where(fn (Builder $q) => $q
+            ->where('tipo', TipoFeria::Fija)
+            ->orWhere('fecha', '>=', today()->toDateString()));
     }
 
     /**
