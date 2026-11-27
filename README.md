@@ -1,17 +1,57 @@
 # PAIPPA network
 
-Plataforma web que conecta a los feriantes del PAIPPA con revendedores de Formosa Capital.
-Trabajo Final Integrador · Tecnicatura Universitaria en Programación · UTN FRRe · 2026.
+[![Pruebas](https://github.com/Mauricio-Cardozo/PAIPPA-network/actions/workflows/tests.yml/badge.svg?branch=develop)](https://github.com/Mauricio-Cardozo/PAIPPA-network/actions/workflows/tests.yml)
+
+Plataforma web que conecta a los feriantes del PAIPPA (Instituto Provincial de Acción Integral para el Pequeño Productor Agropecuario) con los compradores y revendedores de Formosa Capital.
+Trabajo Final Integrador · Tecnicatura Universitaria en Programación · UTN FRRe, Sede Formosa · 2026.
 
 **Equipo:** Lucas (coordinación y lógica de negocio) · Apolo (frontend y QA) · Mauricio (arquitectura, base de datos y seguridad)
 
-## Stack
+## Objetivo
 
-Laravel 13 · PHP 8.3 o superior (desarrollo en 8.5) · MySQL 8.4 · Breeze (Blade) · Tailwind · Vite
+Hoy la oferta de cada feriante llega solo a quien va a la feria o sigue sus estados de WhatsApp. PAIPPA network junta en un catálogo público, pensado para el celular, las ofertas vigentes de las ferias del PAIPPA: qué hay, a qué precio, en qué cantidad y dónde se retira. El comprador contacta al feriante por WhatsApp con un mensaje ya armado, y el PAIPPA administra todo desde un panel.
 
-## Estado
+## Qué hace
 
-Proyecto base creado con Laravel 13, Breeze (Blade), Sail y CI en PHP 8.3 y 8.5.
+- **Catálogo público** con filtros por texto, categoría, feria y precio máximo, paginado de a 12.
+- **Cómo comprar:** los tres pasos, los días y horarios de las ferias y el contacto del PAIPPA, arriba del catálogo.
+- **Perfil del feriante** con sus ofertas publicadas y sus puntos de retiro.
+- **Mapa** de los puntos de retiro con Leaflet y OpenStreetMap.
+- **Contacto por WhatsApp** con un mensaje prearmado. Si el feriante no autoriza mostrar su número, el contacto va al área de Comercialización del PAIPPA.
+- **Panel del administrador:** ferias (fijas e itinerantes), puntos de retiro, categorías, productos, feriantes (con validación), ofertas (con actualización rápida de cantidad y cierre con cantidad vendida) y usuarios (con bloqueo).
+- **Estadísticas:** productos más consultados, contactos por WhatsApp por feriante, ofertas publicadas y usuarios nuevos, con filtro de fechas.
+
+Reglas principales: solo se publican las ofertas de feriantes validados por el PAIPPA, una oferta vale como máximo 7 días, las bajas son lógicas y los clics de WhatsApp se guardan sin el mensaje y se borran a los 12 meses (Ley 25.326).
+
+## Roles
+
+| Rol | Qué puede hacer |
+|---|---|
+| Visitante | Ver el catálogo, los perfiles de los feriantes y el mapa |
+| Comprador | Lo mismo, más contactar a los feriantes por WhatsApp (necesita cuenta) |
+| Feriante | Cuenta opcional, pensada para la mensajería interna (a futuro) |
+| Administrador (PAIPPA) | Cargar y validar ferias, feriantes, productos, ofertas y usuarios, y ver las estadísticas |
+
+## Tecnologías
+
+| Capa | Tecnología |
+|---|---|
+| Backend | Laravel 13 · PHP 8.3 o superior (desarrollo en 8.5) · MVC |
+| Acceso | Laravel Breeze (Blade) y middleware de roles |
+| Frontend | Blade · Tailwind CSS 3 · Alpine.js · Vite |
+| Base de datos | MySQL 8.4 con Eloquent (las pruebas usan SQLite en memoria) |
+| Mapa | Leaflet + OpenStreetMap |
+| Calidad | PHPUnit 12 · Laravel Pint · GitHub Actions |
+| Gestión | Jira · GitHub con Git Flow y pull requests revisados |
+
+## Usuarios de prueba
+
+El seeder los crea solo en el entorno local (`APP_ENV=local`), nunca en producción. La contraseña de los dos es `password`.
+
+| Correo | Rol |
+|---|---|
+| `admin@paippa.test` | Administrador |
+| `test@example.com` | Comprador |
 
 ## Requisitos
 
@@ -82,6 +122,23 @@ composer run dev
 
 La aplicación queda en la URL que muestre Herd o `composer run dev`.
 
+## Variables de entorno propias
+
+| Variable | Para qué sirve |
+|---|---|
+| `APP_TIMEZONE` | Zona horaria del sistema: `America/Argentina/Cordoba`. «Hoy» se calcula en esta zona |
+| `PAIPPA_WHATSAPP_COMERCIALIZACION` | WhatsApp del área de Comercialización del PAIPPA (549 + área + número, sin 0 ni 15). Se usa cuando el feriante no autoriza mostrar su número |
+
+Con Sail, los correos (por ejemplo, el de recuperar la contraseña) no salen a internet: quedan en Mailpit, en <http://localhost:8025>.
+
+## Tareas programadas
+
+`model:prune` corre todos los días y borra los clics de WhatsApp de más de 12 meses. En el servidor hace falta el cron de Laravel:
+
+```bash
+* * * * * cd /ruta/al/proyecto && php artisan schedule:run >> /dev/null 2>&1
+```
+
 ## Base de datos
 
 - Motor: MySQL 8.4.
@@ -147,3 +204,10 @@ Mensajes cortos con la clave de Jira: `PAI-12: valida feriante antes de publicar
 | Sail va muy lento | El proyecto está en `/mnt/c/...`. Moverlo a `~/` dentro de Ubuntu |
 | El puerto 8080 o 3307 está ocupado | Cambiar `APP_PORT` o `FORWARD_DB_PORT` en `.env` y volver a ejecutar `sail up -d` |
 | GitHub rechaza el push a `develop` | Es la protección funcionando: crear una feature y abrir un PR |
+
+## Documentación
+
+- Plan de desarrollo tarea por tarea: [`docs/plan-desarrollo.md`](docs/plan-desarrollo.md).
+- Pruebas de seguridad y de rendimiento: [`docs/pruebas`](docs/pruebas).
+- Evidencias de pruebas manuales: [`docs/evidencias`](docs/evidencias).
+- Requerimientos (ERS), diseño (arquitectura, DER y diccionario de datos) y manuales: en la carpeta del grupo entregada a la cátedra.
