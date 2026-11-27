@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\CerrarOfertaRequest;
 use App\Http\Requests\Admin\OfertaRequest;
 use App\Http\Requests\Admin\StockOfertaRequest;
 use App\Models\Feria;
@@ -79,6 +80,23 @@ class OfertaController extends Controller
         $oferta->update($request->validated());
 
         return back()->with('exito', 'Cantidad y vigencia actualizadas.');
+    }
+
+    /**
+     * PAI-150 (RN-17): cierra la oferta y, si se sabe, guarda cuánto se vendió.
+     * Una oferta cerrada deja de estar publicada (ver Oferta::vigentes()).
+     */
+    public function cerrar(CerrarOfertaRequest $request, Oferta $oferta): RedirectResponse
+    {
+        if ($oferta->cerrada_at !== null) {
+            return back()->with('error', 'Esta oferta ya está cerrada.');
+        }
+
+        $oferta->cantidad_vendida = $request->validated('cantidad_vendida');
+        $oferta->cerrada_at = now();
+        $oferta->save();
+
+        return back()->with('exito', 'Oferta cerrada.');
     }
 
     /** Listas para los selectores: solo feriantes validados y puntos agrupados por feria. */

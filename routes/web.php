@@ -102,6 +102,7 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
         // carga de ofertas y actualización rápida de cantidad y vigencia
         Route::resource('ofertas', OfertaController::class)->except('show');
         Route::patch('ofertas/{oferta}/stock', [OfertaController::class, 'stock'])->name('ofertas.stock');
+        Route::patch('ofertas/{oferta}/cerrar', [OfertaController::class, 'cerrar'])->name('ofertas.cerrar');
 
         // HU13: listado de usuarios y bloqueo o desbloqueo (PAI-83 y PAI-84)
         Route::get('usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');

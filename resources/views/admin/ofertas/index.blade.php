@@ -15,6 +15,9 @@
             @if (session('exito'))
                 <div class="mb-4 rounded-md bg-green-50 p-3 text-sm text-green-800">{{ session('exito') }}</div>
             @endif
+            @if (session('error'))
+                <div class="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-800">{{ session('error') }}</div>
+            @endif
             @if ($errors->any())
                 <div class="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-800">{{ $errors->first() }}</div>
             @endif
@@ -60,6 +63,15 @@
                                     <td class="px-4 py-3">{{ $oferta->feriante?->nombre ?? '—' }}</td>
                                     <td class="whitespace-nowrap px-4 py-3">$ {{ number_format((float) $oferta->precio, 2, ',', '.') }} <span class="text-xs text-gray-500">por {{ $unidad }}</span></td>
                                     <td class="px-4 py-3">
+                                        @if ($oferta->cerrada_at)
+                                            {{-- PAI-150: una oferta cerrada ya no se actualiza; se muestra lo que se vendió. --}}
+                                            <span class="text-xs text-gray-600">
+                                                Cerrada el {{ $oferta->cerrada_at->format('d/m/Y') }}
+                                                @if ($oferta->cantidad_vendida !== null)
+                                                    · vendido {{ (float) $oferta->cantidad_vendida }} {{ $unidad }}
+                                                @endif
+                                            </span>
+                                        @else
                                         {{-- PAI-58: acción rápida para la cantidad y la fecha «hasta» --}}
                                         <form method="POST" action="{{ route('admin.ofertas.stock', $oferta) }}" class="flex flex-wrap items-center gap-1">
                                             @csrf
@@ -70,6 +82,7 @@
                                                    class="rounded-md border-gray-300 py-1 text-sm" aria-label="Vigente hasta">
                                             <button class="rounded-md bg-paippa-green px-2 py-1 text-xs font-semibold text-white hover:opacity-90">Actualizar</button>
                                         </form>
+                                        @endif
                                     </td>
                                     <td class="px-4 py-3">
                                         <span @class([
@@ -78,14 +91,30 @@
                                             'bg-gray-100 text-gray-700' => $oferta->estado !== \App\Enums\EstadoOferta::Publicada,
                                         ])>{{ $oferta->estado->etiqueta() }}</span>
                                     </td>
-                                    <td class="space-x-3 whitespace-nowrap px-4 py-3 text-right">
+                                    <td class="space-x-3 whitespace-nowrap px-4 py-3 text-right" x-data="{ cerrando: false }">
                                         <a href="{{ route('admin.ofertas.edit', $oferta) }}" class="font-medium text-paippa-green hover:underline">Editar</a>
+                                        @unless ($oferta->cerrada_at)
+                                            {{-- PAI-150: «Cerrar» abre un formulario chico con la cantidad vendida (opcional). --}}
+                                            <button type="button" x-on:click="cerrando = ! cerrando" class="font-medium text-gray-700 hover:underline">Cerrar</button>
+                                        @endunless
                                         <form method="POST" action="{{ route('admin.ofertas.destroy', $oferta) }}" class="inline"
                                               onsubmit="return confirm('¿Dar de baja esta oferta?')">
                                             @csrf
                                             @method('DELETE')
                                             <button class="font-medium text-red-700 hover:underline">Dar de baja</button>
                                         </form>
+
+                                        @unless ($oferta->cerrada_at)
+                                            <form method="POST" action="{{ route('admin.ofertas.cerrar', $oferta) }}" x-show="cerrando" style="display: none"
+                                                  class="mt-2 flex flex-wrap items-center justify-end gap-1"
+                                                  onsubmit="return confirm('¿Cerrar esta oferta? Deja de mostrarse en el catálogo.')">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="text" inputmode="decimal" name="cantidad_vendida" placeholder="Vendido (opcional)"
+                                                       class="w-36 rounded-md border-gray-300 py-1 text-sm" aria-label="Cantidad vendida">
+                                                <button class="rounded-md bg-gray-700 px-2 py-1 text-xs font-semibold text-white hover:opacity-90">Confirmar cierre</button>
+                                            </form>
+                                        @endunless
                                     </td>
                                 </tr>
                             @endforeach
