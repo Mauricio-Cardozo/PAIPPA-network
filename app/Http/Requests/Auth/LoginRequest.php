@@ -2,10 +2,12 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -42,6 +44,8 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
+        $this->ensureIsNotBlocked();
+
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
@@ -51,6 +55,25 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+    }
+
+    /**
+     * HU13: un usuario bloqueado no puede iniciar sesión. Se chequea antes de
+     * Auth::attempt para que no se llegue a crear la sesión. Solo se avisa del
+     * bloqueo si la contraseña es correcta: así el mensaje no revela qué
+     * correos están registrados.
+     *
+     * @throws ValidationException
+     */
+    public function ensureIsNotBlocked(): void
+    {
+        $user = User::where('email', $this->string('email'))->first();
+
+        if ($user?->estaBloqueado() && Hash::check($this->string('password'), $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => trans('auth.blocked'),
+            ]);
+        }
     }
 
     /**

@@ -3,18 +3,16 @@
 use App\Http\Controllers\Admin\CategoriaController;
 use App\Http\Controllers\Admin\FeriaController;
 use App\Http\Controllers\Admin\FerianteController;
+use App\Http\Controllers\Admin\InicioController;
 use App\Http\Controllers\Admin\OfertaController;
 use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\PuntoRetiroController;
+use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\ContactoController;
 use App\Http\Controllers\MapaController;
 use App\Http\Controllers\PerfilFerianteController;
 use App\Http\Controllers\ProfileController;
-use App\Models\Feria;
-use App\Models\Feriante;
-use App\Models\Oferta;
-use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -83,25 +81,8 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
     ->name('admin.')
     ->group(function () {
 
-        Route::get('/', function () {
-
-            // Cantidades reales de la base de datos
-            $totalFeriantes = Feriante::count();
-
-            $totalFerias = Feria::count();
-
-            $totalUsuarios = User::count();
-
-            // Ofertas vigentes: misma regla que el scope Oferta::vigentes()
-            $totalOfertasVigentes = Oferta::vigentes()->count();
-
-            return view('admin.inicio', compact(
-                'totalFeriantes',
-                'totalFerias',
-                'totalUsuarios',
-                'totalOfertasVigentes'
-            ));
-        })->name('inicio');
+        // PAI-140: contadores y accesos a los ABM
+        Route::get('/', [InicioController::class, 'index'])->name('inicio');
 
         //  ABM de categorías y productos (sin la página show)
         Route::resource('categorias', CategoriaController::class)->except('show');
@@ -121,6 +102,11 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
         // carga de ofertas y actualización rápida de cantidad y vigencia
         Route::resource('ofertas', OfertaController::class)->except('show');
         Route::patch('ofertas/{oferta}/stock', [OfertaController::class, 'stock'])->name('ofertas.stock');
+
+        // HU13: listado de usuarios y bloqueo o desbloqueo (PAI-83 y PAI-84)
+        Route::get('usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
+        Route::patch('usuarios/{usuario}/bloquear', [UsuarioController::class, 'bloquear'])->name('usuarios.bloquear');
+        Route::patch('usuarios/{usuario}/desbloquear', [UsuarioController::class, 'desbloquear'])->name('usuarios.desbloquear');
     });
 
 // perfil público del feriante (solo validados)

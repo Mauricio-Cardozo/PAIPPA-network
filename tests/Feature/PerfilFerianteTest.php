@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Feriante;
 use App\Models\Oferta;
+use App\Models\Producto;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
@@ -17,8 +18,13 @@ class PerfilFerianteTest extends TestCase
     #[Test]
     public function un_feriante_validado_muestra_su_perfil_y_sus_ofertas_publicadas(): void
     {
-        $oferta = Oferta::factory()->create();
+        // Nombres fijos: con una palabra al azar (por ejemplo «In») assertDontSee
+        // la encontraba dentro de otro texto de la página y la prueba fallaba a veces.
+        $oferta = Oferta::factory()->create([
+            'producto_id' => Producto::factory()->create(['nombre' => 'Mandioca publicada']),
+        ]);
         $vencida = Oferta::factory()->create([
+            'producto_id' => Producto::factory()->create(['nombre' => 'Zapallo vencido']),
             'feriante_id' => $oferta->feriante_id,
             'disponible_desde' => now()->subDays(20)->toDateString(),
             'vigente_hasta' => now()->subDays(10)->toDateString(),
