@@ -67,51 +67,52 @@
                     Gestión
                 </h2>
 
+                {{-- Accesos a cada ABM del panel (PAI-140) --}}
                 <div class="space-y-3">
 
-                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                        <div class="flex justify-between items-center">
+                    <a href="{{ route('admin.feriantes.index') }}"
+                       class="block bg-white rounded-xl border border-gray-200 shadow-sm p-5 hover:border-paippa-green">
+                        <div class="flex justify-between items-center gap-4">
                             <span class="font-medium text-gray-800">
                                 Feriantes
                             </span>
-                            <span class="text-xs text-gray-500">
-                                Próximamente
+                            <span class="text-xs {{ $feriantesPendientes > 0 ? 'font-semibold text-amber-700' : 'text-gray-500' }}">
+                                {{ $feriantesPendientes }} {{ $feriantesPendientes === 1 ? 'pendiente' : 'pendientes' }} de validar
                             </span>
+                        </div>
+                    </a>
+
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+                        <span class="font-medium text-gray-800">
+                            Ferias y puntos de retiro
+                        </span>
+                        <div class="mt-2 flex gap-4 text-sm">
+                            <a href="{{ route('admin.ferias.index') }}" class="font-semibold text-paippa-green hover:underline">Ferias</a>
+                            <a href="{{ route('admin.puntos-retiro.index') }}" class="font-semibold text-paippa-green hover:underline">Puntos de retiro</a>
                         </div>
                     </div>
 
                     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                        <div class="flex justify-between items-center">
-                            <span class="font-medium text-gray-800">
-                                Ferias y puntos de retiro
-                            </span>
-                            <span class="text-xs text-gray-500">
-                                Próximamente
-                            </span>
+                        <span class="font-medium text-gray-800">
+                            Productos y categorías
+                        </span>
+                        <div class="mt-2 flex gap-4 text-sm">
+                            <a href="{{ route('admin.productos.index') }}" class="font-semibold text-paippa-green hover:underline">Productos</a>
+                            <a href="{{ route('admin.categorias.index') }}" class="font-semibold text-paippa-green hover:underline">Categorías</a>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                        <div class="flex justify-between items-center">
-                            <span class="font-medium text-gray-800">
-                                Productos y categorías
-                            </span>
-                            <span class="text-xs text-gray-500">
-                                Próximamente
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                        <div class="flex justify-between items-center">
+                    <a href="{{ route('admin.ofertas.index') }}"
+                       class="block bg-white rounded-xl border border-gray-200 shadow-sm p-5 hover:border-paippa-green">
+                        <div class="flex justify-between items-center gap-4">
                             <span class="font-medium text-gray-800">
                                 Ofertas
                             </span>
                             <span class="text-xs text-gray-500">
-                                Próximamente
+                                Cargar y actualizar
                             </span>
                         </div>
-                    </div>
+                    </a>
 
                 </div>
 
