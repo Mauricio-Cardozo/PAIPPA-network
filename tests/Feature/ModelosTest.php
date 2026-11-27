@@ -68,8 +68,10 @@ class ModelosTest extends TestCase
         $this->seed(CategoriaSeeder::class);
         $this->seed(FeriaSeeder::class);
 
-        $this->assertSame(3, Feria::count());
-        $this->assertSame(6, PuntoRetiro::count());
+        // Las 3 ferias fijas del relevamiento y una itinerante de ejemplo.
+        $this->assertSame(4, Feria::count());
+        $this->assertSame(1, Feria::where('tipo', 'itinerante')->count());
+        $this->assertSame(4, PuntoRetiro::count());
         $this->assertSame(10, Feriante::count());
         $this->assertSame(8, Feriante::validados()->count());
         $this->assertSame(40, Oferta::count());
