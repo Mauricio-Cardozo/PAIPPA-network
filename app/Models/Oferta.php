@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable(['feriante_id', 'producto_id', 'punto_retiro_id', 'precio', 'cantidad_disponible', 'disponible_desde', 'vigente_hasta', 'promocion', 'entrega_domicilio', 'cantidad_vendida', 'cerrada_at'])]
@@ -32,6 +33,50 @@ class Oferta extends Model
             'cantidad_vendida' => 'decimal:2',
             'cerrada_at' => 'datetime',
         ];
+    }
+
+    /**
+     * RN-15: cada alta o cambio de precio, cantidad o vigencia queda en el
+     * historial con la fecha y el autor. Se registra acá, al guardar el modelo,
+     * para que pase lo mismo venga el cambio del formulario o de la acción
+     * rápida de stock.
+     */
+    protected static function booted(): void
+    {
+        static::created(fn (Oferta $oferta) => $oferta->registrarEnHistorial('alta'));
+
+        static::updated(function (Oferta $oferta) {
+            if ($oferta->wasChanged(['precio', 'cantidad_disponible', 'vigente_hasta'])) {
+                $oferta->registrarEnHistorial('cambio');
+            }
+        });
+    }
+
+    private function registrarEnHistorial(string $accion): void
+    {
+        $this->historial()->create([
+            'user_id' => auth()->id(),
+            'accion' => $accion,
+            'precio' => $this->precio,
+            'cantidad_disponible' => $this->cantidad_disponible,
+            'vigente_hasta' => $this->vigente_hasta,
+        ]);
+    }
+
+    public function historial(): HasMany
+    {
+        return $this->hasMany(HistorialOferta::class);
+    }
+
+    /**
+     * RN-16: si el precio supera el tope vigente del PAIPPA para el producto,
+     * el sistema lo advierte al cargarla. Sin tope cargado, no hay advertencia.
+     */
+    public function superaPrecioTope(): bool
+    {
+        $tope = $this->producto?->precioTopeVigente;
+
+        return $tope !== null && (float) $this->precio > (float) $tope->precio_tope;
     }
 
     public function feriante(): BelongsTo

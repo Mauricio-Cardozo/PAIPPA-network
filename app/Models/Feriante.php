@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -49,6 +50,12 @@ class Feriante extends Model
     public function ofertas(): HasMany
     {
         return $this->hasMany(Oferta::class);
+    }
+
+    /** Los medios de pago que acepta (RF-006). */
+    public function mediosPago(): BelongsToMany
+    {
+        return $this->belongsToMany(MedioPago::class, 'feriante_medio_pago');
     }
 
     public function estaValidado(): bool
