@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CategoriaController;
+use App\Http\Controllers\Admin\EstadisticaController;
 use App\Http\Controllers\Admin\FeriaController;
 use App\Http\Controllers\Admin\FerianteController;
 use App\Http\Controllers\Admin\InicioController;
@@ -107,6 +108,9 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
         Route::get('usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
         Route::patch('usuarios/{usuario}/bloquear', [UsuarioController::class, 'bloquear'])->name('usuarios.bloquear');
         Route::patch('usuarios/{usuario}/desbloquear', [UsuarioController::class, 'desbloquear'])->name('usuarios.desbloquear');
+
+        // HU15: indicadores de uso con filtro de fechas (PAI-90).
+        Route::get('estadisticas', [EstadisticaController::class, 'index'])->name('estadisticas');
     });
 
 // perfil público del feriante (solo validados)
