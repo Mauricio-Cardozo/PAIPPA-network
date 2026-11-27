@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\InicioController;
 use App\Http\Controllers\Admin\OfertaController;
 use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\PuntoRetiroController;
+use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\ContactoController;
 use App\Http\Controllers\MapaController;
@@ -101,6 +102,11 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
         // carga de ofertas y actualización rápida de cantidad y vigencia
         Route::resource('ofertas', OfertaController::class)->except('show');
         Route::patch('ofertas/{oferta}/stock', [OfertaController::class, 'stock'])->name('ofertas.stock');
+
+        // HU13: listado de usuarios y bloqueo o desbloqueo (PAI-83 y PAI-84)
+        Route::get('usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
+        Route::patch('usuarios/{usuario}/bloquear', [UsuarioController::class, 'bloquear'])->name('usuarios.bloquear');
+        Route::patch('usuarios/{usuario}/desbloquear', [UsuarioController::class, 'desbloquear'])->name('usuarios.desbloquear');
     });
 
 // perfil público del feriante (solo validados)
