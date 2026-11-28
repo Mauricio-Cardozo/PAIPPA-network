@@ -34,9 +34,12 @@ class InicioPanelTest extends TestCase
             ->get(route('admin.inicio'))
             ->assertDontSee('Próximamente');
 
-        foreach (['feriantes', 'ferias', 'puntos-retiro', 'productos', 'categorias', 'ofertas'] as $abm) {
+        foreach (['feriantes', 'ferias', 'puntos-retiro', 'productos', 'categorias', 'ofertas', 'usuarios'] as $abm) {
             $respuesta->assertSee(route("admin.{$abm}.index"), false);
         }
+
+        // Y el acceso a las estadísticas (PAI-90).
+        $respuesta->assertSee(route('admin.estadisticas'), false);
     }
 
     #[Test]
