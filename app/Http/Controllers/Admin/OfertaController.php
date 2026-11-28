@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\CerrarOfertaRequest;
 use App\Http\Requests\Admin\OfertaRequest;
 use App\Http\Requests\Admin\StockOfertaRequest;
 use App\Models\Feria;
@@ -53,13 +54,21 @@ class OfertaController extends Controller
         return redirect()->route('admin.ofertas.index')->with('exito', 'Oferta creada.');
     }
 
-    public function edit(Oferta $oferta): View
+    public function edit(Oferta $oferta): View|RedirectResponse
     {
+        if ($oferta->cerrada_at !== null) {
+            return $this->ofertaCerrada();
+        }
+
         return view('admin.ofertas.form', $this->datosFormulario($oferta));
     }
 
     public function update(OfertaRequest $request, Oferta $oferta): RedirectResponse
     {
+        if ($oferta->cerrada_at !== null) {
+            return $this->ofertaCerrada();
+        }
+
         $oferta->update($request->validated());
 
         return redirect()->route('admin.ofertas.index')->with('exito', 'Oferta actualizada.');
@@ -76,9 +85,39 @@ class OfertaController extends Controller
     /** PAI-58: acción rápida para cambiar la cantidad y la fecha «hasta» sin abrir el formulario. */
     public function stock(StockOfertaRequest $request, Oferta $oferta): RedirectResponse
     {
+        if ($oferta->cerrada_at !== null) {
+            return $this->ofertaCerrada();
+        }
+
         $oferta->update($request->validated());
 
         return back()->with('exito', 'Cantidad y vigencia actualizadas.');
+    }
+
+    /**
+     * PAI-150 (RN-17): cierra la oferta y, si se sabe, guarda cuánto se vendió.
+     * Una oferta cerrada deja de estar publicada (ver Oferta::vigentes()).
+     */
+    public function cerrar(CerrarOfertaRequest $request, Oferta $oferta): RedirectResponse
+    {
+        if ($oferta->cerrada_at !== null) {
+            return back()->with('error', 'Esta oferta ya está cerrada.');
+        }
+
+        $oferta->cantidad_vendida = $request->validated('cantidad_vendida');
+        $oferta->cerrada_at = now();
+        $oferta->save();
+
+        return back()->with('exito', 'Oferta cerrada.');
+    }
+
+    /**
+     * PAI-150: una oferta cerrada ya no se modifica (ni el formulario ni la
+     * acción rápida), así lo vendido queda como se informó. Sí se puede dar de baja.
+     */
+    private function ofertaCerrada(): RedirectResponse
+    {
+        return redirect()->route('admin.ofertas.index')->with('error', 'Una oferta cerrada no se puede modificar.');
     }
 
     /** Listas para los selectores: solo feriantes validados y puntos agrupados por feria. */
