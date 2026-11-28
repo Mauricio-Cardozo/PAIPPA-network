@@ -147,6 +147,9 @@
             @endphp
 
 
+            {{-- PAI-151: cómo comprar (pantalla P07) --}}
+            <x-como-comprar :ferias="$feriasHorarios" :whatsapp="$whatsappPaippa" />
+
             <x-filtros-catalogo
                 :categorias="$categoriasFiltro"
                 :ferias="$feriasFiltro" />
