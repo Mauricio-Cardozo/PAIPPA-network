@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\Rol;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\EstadisticasRequest;
 use App\Models\ClicWhatsapp;
 use App\Models\ConsultaProducto;
+use App\Models\Feriante;
 use App\Models\Oferta;
 use App\Models\User;
+use App\Support\ResumenVentas;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
@@ -52,14 +56,28 @@ class EstadisticaController extends Controller
             ->with(['feriante' => fn ($consulta) => $consulta->withTrashed()])
             ->get();
 
+        // Ofrecido, vendido y monto estimado (RF-017, RN-17).
+        $ventas = new ResumenVentas(
+            $this->ofertasPublicadas($inicio, $fin)
+                ->with(['producto' => fn ($consulta) => $consulta->withTrashed()])
+                ->withMax('historial', 'cantidad_disponible')
+                ->get()
+        );
+
         return view('admin.estadisticas.index', [
             'desde' => $desde,
             'hasta' => $hasta,
             'productos' => $productos,
             'feriantes' => $feriantes,
-            'totalOfertas' => $this->ofertasPublicadas($inicio, $fin),
+            'ventasPorProducto' => $ventas->porProducto(),
+            'ventasPorUnidad' => $ventas->porUnidad(),
+            'montoTotal' => $ventas->montoTotal(),
+            // Feriantes validados al terminar el período y que no están dados de baja.
+            'feriantesActivos' => Feriante::whereNotNull('validado_at')->where('validado_at', '<', $fin)->count(),
+            'totalOfertas' => $this->ofertasPublicadas($inicio, $fin)->count(),
             'totalClics' => ClicWhatsapp::where('created_at', '>=', $inicio)->where('created_at', '<', $fin)->count(),
-            'usuariosNuevos' => User::where('created_at', '>=', $inicio)->where('created_at', '<', $fin)->count(),
+            'compradoresNuevos' => User::where('rol', Rol::Comprador)
+                ->where('created_at', '>=', $inicio)->where('created_at', '<', $fin)->count(),
         ]);
     }
 
@@ -69,12 +87,11 @@ class EstadisticaController extends Controller
      * antes de que empezara (RN-17). Las dadas de baja no cuentan (SoftDeletes).
      * La validación del feriante se mira como está hoy: no se guarda su historial.
      */
-    private function ofertasPublicadas(Carbon $inicio, Carbon $fin): int
+    private function ofertasPublicadas(Carbon $inicio, Carbon $fin): Builder
     {
         return Oferta::where('disponible_desde', '<', $fin->toDateString())
             ->where('vigente_hasta', '>=', $inicio->toDateString())
             ->whereHas('feriante', fn ($feriante) => $feriante->whereNotNull('validado_at'))
-            ->where(fn ($oferta) => $oferta->whereNull('cerrada_at')->orWhere('cerrada_at', '>=', $inicio))
-            ->count();
+            ->where(fn ($oferta) => $oferta->whereNull('cerrada_at')->orWhere('cerrada_at', '>=', $inicio));
     }
 }

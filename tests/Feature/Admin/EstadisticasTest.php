@@ -3,6 +3,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Enums\Rol;
+use App\Enums\Unidad;
 use App\Models\ClicWhatsapp;
 use App\Models\ConsultaProducto;
 use App\Models\Feriante;
@@ -103,7 +104,7 @@ class EstadisticasTest extends TestCase
     }
 
     #[Test]
-    public function cuenta_las_ofertas_del_periodo_y_los_usuarios_nuevos(): void
+    public function cuenta_las_ofertas_del_periodo_y_los_compradores_registrados(): void
     {
         Oferta::factory()->create(['disponible_desde' => '2026-11-18', 'vigente_hasta' => '2026-11-22']);
         Oferta::factory()->create(['disponible_desde' => '2026-11-01', 'vigente_hasta' => '2026-11-05']);
@@ -113,8 +114,8 @@ class EstadisticasTest extends TestCase
             ->assertOk();
 
         $this->assertSame(1, $respuesta->viewData('totalOfertas'));
-        // El admin y los usuarios de las ofertas se crearon hoy.
-        $this->assertSame(User::count(), $respuesta->viewData('usuariosNuevos'));
+        // El admin no cuenta: solo los compradores registrados en el período.
+        $this->assertSame(User::where('rol', Rol::Comprador)->count(), $respuesta->viewData('compradoresNuevos'));
     }
 
     #[Test]
@@ -153,6 +154,49 @@ class EstadisticasTest extends TestCase
             ->get(route('admin.estadisticas', ['desde' => '2026-12-15']))
             ->assertRedirect(route('admin.estadisticas'))
             ->assertSessionHasErrors('hasta');
+    }
+
+    #[Test]
+    public function muestra_lo_ofrecido_lo_vendido_y_el_monto_estimado(): void
+    {
+        $periodo = ['desde' => '2026-11-20', 'hasta' => '2026-11-27'];
+        $vigencia = ['disponible_desde' => '2026-11-25', 'vigente_hasta' => '2026-11-30'];
+        $miel = Producto::factory()->create(['nombre' => 'Miel de monte', 'unidad' => Unidad::Frasco]);
+        $zapallo = Producto::factory()->create(['nombre' => 'Zapallo anco', 'unidad' => Unidad::Kilo]);
+
+        // Se ofrecieron 10 frascos a $1.000, se agotó (stock en 0) y se cerró vendiendo los 10.
+        $agotada = Oferta::factory()->create([...$vigencia, 'producto_id' => $miel->id, 'precio' => 1000, 'cantidad_disponible' => 10]);
+        $agotada->update(['cantidad_disponible' => 0]);
+        $agotada->forceFill(['cantidad_vendida' => 10, 'cerrada_at' => now()])->save();
+        // Otra de miel a $1.200, todavía abierta: suma a lo ofrecido, no a lo vendido.
+        Oferta::factory()->create([...$vigencia, 'producto_id' => $miel->id, 'precio' => 1200, 'cantidad_disponible' => 5]);
+        // Zapallo sin venta informada (RN-17: solo se muestra lo ofrecido).
+        Oferta::factory()->create([...$vigencia, 'producto_id' => $zapallo->id, 'precio' => 800, 'cantidad_disponible' => 20]);
+
+        $respuesta = $this->actingAs($this->admin)->get(route('admin.estadisticas', $periodo))->assertOk();
+
+        $filas = $respuesta->viewData('ventasPorProducto');
+        $this->assertSame(['producto' => 'Miel de monte', 'unidad' => 'Frasco', 'ofrecido' => 15.0, 'vendido' => 10.0, 'monto' => 10000.0, 'precio_promedio' => 1100.0], $filas[0]);
+        $this->assertSame(['producto' => 'Zapallo anco', 'unidad' => 'Kilo', 'ofrecido' => 20.0, 'vendido' => null, 'monto' => null, 'precio_promedio' => 800.0], $filas[1]);
+        $this->assertSame(10000.0, $respuesta->viewData('montoTotal'));
+
+        $respuesta->assertSee('$ 10.000,00')
+            ->assertSee('Frasco: ofrecido 15,00 · vendido 10,00')
+            ->assertSee('Kilo: ofrecido 20,00 · vendido —');
+    }
+
+    #[Test]
+    public function cuenta_los_feriantes_activos(): void
+    {
+        Feriante::factory()->count(2)->create(['validado_at' => '2026-11-01 10:00:00']);
+        Feriante::factory()->sinValidar()->create();
+        Feriante::factory()->create(['validado_at' => '2026-11-01 10:00:00'])->delete();
+        // Validado después del período.
+        Feriante::factory()->create(['validado_at' => '2026-11-26 10:00:00']);
+
+        $this->assertSame(2, $this->actingAs($this->admin)
+            ->get(route('admin.estadisticas', ['desde' => '2026-11-01', 'hasta' => '2026-11-25']))
+            ->viewData('feriantesActivos'));
     }
 
     #[Test]
