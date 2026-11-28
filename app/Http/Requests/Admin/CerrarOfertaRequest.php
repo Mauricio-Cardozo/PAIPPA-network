@@ -22,12 +22,22 @@ class CerrarOfertaRequest extends FormRequest
 
     public function rules(): array
     {
-        $disponible = (float) $this->route('oferta')->cantidad_disponible;
-
         return [
             // Opcional: si no se sabe cuánto se vendió, se cierra igual.
-            'cantidad_vendida' => ['nullable', 'numeric', 'min:0', 'max:'.$disponible],
+            'cantidad_vendida' => ['nullable', 'numeric', 'min:0', 'max:'.$this->cantidadOfrecida()],
         ];
+    }
+
+    /**
+     * La mayor cantidad que tuvo la oferta, según el historial (RN-15). No se usa
+     * la que queda: una oferta agotada tiene 0 y vendió todo. El max() con la
+     * actual cubre las ofertas sin historial, como las del seeder.
+     */
+    private function cantidadOfrecida(): float
+    {
+        $oferta = $this->route('oferta');
+
+        return max((float) $oferta->cantidad_disponible, (float) $oferta->historial()->max('cantidad_disponible'));
     }
 
     public function messages(): array
@@ -35,7 +45,7 @@ class CerrarOfertaRequest extends FormRequest
         return [
             'cantidad_vendida.numeric' => 'La cantidad vendida tiene que ser un número.',
             'cantidad_vendida.min' => 'La cantidad vendida no puede ser negativa.',
-            'cantidad_vendida.max' => 'La cantidad vendida no puede ser mayor que la disponible.',
+            'cantidad_vendida.max' => 'La cantidad vendida no puede ser mayor que la cantidad ofrecida.',
         ];
     }
 }

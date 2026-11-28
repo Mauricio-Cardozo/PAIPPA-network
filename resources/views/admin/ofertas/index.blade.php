@@ -68,7 +68,7 @@
                                             <span class="text-xs text-gray-600">
                                                 Cerrada el {{ $oferta->cerrada_at->format('d/m/Y') }}
                                                 @if ($oferta->cantidad_vendida !== null)
-                                                    · vendido {{ (float) $oferta->cantidad_vendida }} {{ $unidad }}
+                                                    · vendido {{ number_format((float) $oferta->cantidad_vendida, 2, ',', '.') }} {{ $unidad }}
                                                 @endif
                                             </span>
                                         @else
@@ -92,8 +92,8 @@
                                         ])>{{ $oferta->estado->etiqueta() }}</span>
                                     </td>
                                     <td class="space-x-3 whitespace-nowrap px-4 py-3 text-right" x-data="{ cerrando: false }">
-                                        <a href="{{ route('admin.ofertas.edit', $oferta) }}" class="font-medium text-paippa-green hover:underline">Editar</a>
                                         @unless ($oferta->cerrada_at)
+                                            <a href="{{ route('admin.ofertas.edit', $oferta) }}" class="font-medium text-paippa-green hover:underline">Editar</a>
                                             {{-- PAI-150: «Cerrar» abre un formulario chico con la cantidad vendida (opcional). --}}
                                             <button type="button" x-on:click="cerrando = ! cerrando" class="font-medium text-gray-700 hover:underline">Cerrar</button>
                                         @endunless

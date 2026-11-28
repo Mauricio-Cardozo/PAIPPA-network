@@ -74,7 +74,7 @@ class CerrarOfertaTest extends TestCase
     }
 
     #[Test]
-    public function la_cantidad_vendida_no_puede_ser_negativa_ni_mayor_que_la_disponible(): void
+    public function la_cantidad_vendida_no_puede_ser_negativa_ni_mayor_que_la_ofrecida(): void
     {
         $oferta = $this->oferta();
 
@@ -90,6 +90,56 @@ class CerrarOfertaTest extends TestCase
         $this->actingAs($this->admin)
             ->patch(route('admin.ofertas.cerrar', $oferta), ['cantidad_vendida' => '10'])
             ->assertSessionHasNoErrors();
+    }
+
+    #[Test]
+    public function una_oferta_agotada_puede_informar_que_vendio_todo(): void
+    {
+        // Se cargan 10 y, cuando se vende todo, se pone el stock en 0 con «Actualizar».
+        $oferta = $this->oferta();
+        $this->actingAs($this->admin)
+            ->patch(route('admin.ofertas.stock', $oferta), ['cantidad_disponible' => '0', 'vigente_hasta' => '2026-11-30'])
+            ->assertSessionHasNoErrors();
+        $this->assertSame('0.00', $oferta->refresh()->cantidad_disponible);
+
+        $this->actingAs($this->admin)
+            ->patch(route('admin.ofertas.cerrar', $oferta), ['cantidad_vendida' => '10'])
+            ->assertSessionHasNoErrors();
+        $this->assertSame('10.00', $oferta->refresh()->cantidad_vendida);
+
+        // Más de lo que se ofreció, no.
+        $otra = $this->oferta();
+        $this->actingAs($this->admin)
+            ->patch(route('admin.ofertas.cerrar', $otra), ['cantidad_vendida' => '11'])
+            ->assertSessionHasErrors(['cantidad_vendida' => 'La cantidad vendida no puede ser mayor que la cantidad ofrecida.']);
+    }
+
+    #[Test]
+    public function una_oferta_cerrada_no_se_puede_modificar(): void
+    {
+        $oferta = $this->oferta();
+        $this->actingAs($this->admin)->patch(route('admin.ofertas.cerrar', $oferta), ['cantidad_vendida' => '3']);
+
+        $this->actingAs($this->admin)
+            ->patch(route('admin.ofertas.stock', $oferta), ['cantidad_disponible' => '99', 'vigente_hasta' => '2026-11-30'])
+            ->assertRedirect(route('admin.ofertas.index'))
+            ->assertSessionHas('error', 'Una oferta cerrada no se puede modificar.');
+
+        $this->actingAs($this->admin)
+            ->get(route('admin.ofertas.edit', $oferta))
+            ->assertRedirect(route('admin.ofertas.index'));
+
+        $datos = [...$oferta->only(['feriante_id', 'producto_id', 'punto_retiro_id', 'precio']), 'disponible_desde' => '2026-11-25'];
+        $this->actingAs($this->admin)
+            ->put(route('admin.ofertas.update', $oferta), [...$datos, 'cantidad_disponible' => '99', 'vigente_hasta' => '2026-11-30'])
+            ->assertSessionHas('error');
+
+        $this->assertSame('10.00', $oferta->refresh()->cantidad_disponible);
+
+        // En el listado ya no aparece «Editar» para esa oferta.
+        $this->actingAs($this->admin)
+            ->get(route('admin.ofertas.index'))
+            ->assertDontSee(route('admin.ofertas.edit', $oferta), false);
     }
 
     #[Test]
@@ -118,7 +168,7 @@ class CerrarOfertaTest extends TestCase
             ->get(route('admin.ofertas.index'))
             ->assertOk()
             ->assertSee('Cerrada el 27/11/2026')
-            ->assertSee('vendido 4')
+            ->assertSee('vendido 4,00')
             ->assertDontSee(route('admin.ofertas.cerrar', $oferta), false);
     }
 
