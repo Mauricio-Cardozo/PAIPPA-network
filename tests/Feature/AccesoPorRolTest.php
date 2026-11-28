@@ -25,6 +25,7 @@ class AccesoPorRolTest extends TestCase
             'catálogo' => ['/', [200, 200, 200, 200]],
             'perfil propio' => ['/profile', ['login', 200, 200, 200]],
             'panel admin' => ['/admin', ['login', 403, 403, 200]],
+            'estadísticas' => ['/admin/estadisticas', ['login', 403, 403, 200]],
         ];
 
         $roles = [null, 'comprador', 'feriante', 'admin'];
