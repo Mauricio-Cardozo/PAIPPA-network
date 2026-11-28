@@ -20,9 +20,9 @@ class EstadisticaController extends Controller
 {
     public function index(EstadisticasRequest $request): View
     {
-        // Por defecto, los últimos 30 días contando hoy.
-        $desde = Carbon::parse($request->validated('desde') ?? today()->subDays(29));
-        $hasta = Carbon::parse($request->validated('hasta') ?? today());
+        // Las fechas vienen siempre: si faltan, el Form Request pone los últimos 30 días.
+        $desde = Carbon::parse($request->validated('desde'));
+        $hasta = Carbon::parse($request->validated('hasta'));
 
         // Se compara «desde ≤ fecha < el día después de hasta», así entra todo
         // el último día sin importar la hora.
@@ -57,12 +57,24 @@ class EstadisticaController extends Controller
             'hasta' => $hasta,
             'productos' => $productos,
             'feriantes' => $feriantes,
-            // Ofertas que estuvieron disponibles en algún momento del período.
-            'totalOfertas' => Oferta::where('disponible_desde', '<', $fin->toDateString())
-                ->where('vigente_hasta', '>=', $inicio->toDateString())
-                ->count(),
+            'totalOfertas' => $this->ofertasPublicadas($inicio, $fin),
             'totalClics' => ClicWhatsapp::where('created_at', '>=', $inicio)->where('created_at', '<', $fin)->count(),
             'usuariosNuevos' => User::where('created_at', '>=', $inicio)->where('created_at', '<', $fin)->count(),
         ]);
+    }
+
+    /**
+     * Ofertas que estuvieron publicadas en algún momento del período: su vigencia
+     * se cruza con el período, el feriante está validado (RN-01) y no se cerraron
+     * antes de que empezara (RN-17). Las dadas de baja no cuentan (SoftDeletes).
+     * La validación del feriante se mira como está hoy: no se guarda su historial.
+     */
+    private function ofertasPublicadas(Carbon $inicio, Carbon $fin): int
+    {
+        return Oferta::where('disponible_desde', '<', $fin->toDateString())
+            ->where('vigente_hasta', '>=', $inicio->toDateString())
+            ->whereHas('feriante', fn ($feriante) => $feriante->whereNotNull('validado_at'))
+            ->where(fn ($oferta) => $oferta->whereNull('cerrada_at')->orWhere('cerrada_at', '>=', $inicio))
+            ->count();
     }
 }

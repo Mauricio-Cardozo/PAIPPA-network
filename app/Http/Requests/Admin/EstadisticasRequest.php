@@ -15,11 +15,32 @@ class EstadisticasRequest extends FormRequest
         return true;
     }
 
+    /**
+     * Completa las fechas que faltan antes de validar, así la regla compara
+     * siempre: «hasta» es hoy si no viene, y «desde» son los 30 días anteriores
+     * a «hasta». Un «desde» futuro sin «hasta» queda después de hoy y da error.
+     */
+    protected function prepareForValidation(): void
+    {
+        $hasta = $this->filled('hasta') ? $this->input('hasta') : today()->toDateString();
+        $desde = $this->filled('desde') ? $this->input('desde') : $this->desdePorDefecto($hasta);
+
+        $this->merge(['desde' => $desde, 'hasta' => $hasta]);
+    }
+
+    /** 30 días contando «hasta». Si «hasta» no es una fecha válida, la regla lo informa. */
+    private function desdePorDefecto(mixed $hasta): ?string
+    {
+        $fecha = is_string($hasta) ? \DateTime::createFromFormat('!Y-m-d', $hasta) : false;
+
+        return $fecha ? $fecha->modify('-29 days')->format('Y-m-d') : null;
+    }
+
     public function rules(): array
     {
         return [
-            'desde' => ['nullable', 'date_format:Y-m-d'],
-            'hasta' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:desde'],
+            'desde' => ['required', 'date_format:Y-m-d'],
+            'hasta' => ['required', 'date_format:Y-m-d', 'after_or_equal:desde'],
         ];
     }
 

@@ -118,6 +118,44 @@ class EstadisticasTest extends TestCase
     }
 
     #[Test]
+    public function no_cuenta_ofertas_que_no_estuvieron_publicadas_en_el_periodo(): void
+    {
+        $periodo = ['desde' => '2026-11-20', 'hasta' => '2026-11-27'];
+        $vigencia = ['disponible_desde' => '2026-11-18', 'vigente_hasta' => '2026-11-22'];
+
+        // Feriante sin validar (RN-01): nunca se publicó.
+        Oferta::factory()->create([...$vigencia, 'feriante_id' => Feriante::factory()->sinValidar()->create()->id]);
+        // Cerrada antes de que empiece el período.
+        Oferta::factory()->create([...$vigencia, 'cerrada_at' => '2026-11-19 18:00:00']);
+        // Dada de baja.
+        Oferta::factory()->create($vigencia)->delete();
+        // Cerrada durante el período: estuvo publicada unos días, cuenta.
+        Oferta::factory()->create([...$vigencia, 'cerrada_at' => '2026-11-21 12:00:00']);
+
+        $this->assertSame(1, $this->actingAs($this->admin)
+            ->get(route('admin.estadisticas', $periodo))
+            ->viewData('totalOfertas'));
+    }
+
+    #[Test]
+    public function con_solo_hasta_muestra_los_30_dias_anteriores(): void
+    {
+        $this->actingAs($this->admin)
+            ->get(route('admin.estadisticas', ['hasta' => '2026-09-01']))
+            ->assertOk()
+            ->assertSee('Del 03/08/2026 al 01/09/2026');
+    }
+
+    #[Test]
+    public function un_desde_futuro_sin_hasta_muestra_el_error(): void
+    {
+        $this->actingAs($this->admin)
+            ->get(route('admin.estadisticas', ['desde' => '2026-12-15']))
+            ->assertRedirect(route('admin.estadisticas'))
+            ->assertSessionHasErrors('hasta');
+    }
+
+    #[Test]
     public function un_rango_invalido_muestra_el_error(): void
     {
         $this->actingAs($this->admin)
