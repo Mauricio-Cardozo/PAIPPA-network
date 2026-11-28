@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CategoriaController;
+use App\Http\Controllers\Admin\EstadisticaController;
 use App\Http\Controllers\Admin\FeriaController;
 use App\Http\Controllers\Admin\FerianteController;
 use App\Http\Controllers\Admin\InicioController;
@@ -102,11 +103,15 @@ Route::middleware(['auth', 'rol:admin', 'sin-cache'])
         // carga de ofertas y actualización rápida de cantidad y vigencia
         Route::resource('ofertas', OfertaController::class)->except('show');
         Route::patch('ofertas/{oferta}/stock', [OfertaController::class, 'stock'])->name('ofertas.stock');
+        Route::patch('ofertas/{oferta}/cerrar', [OfertaController::class, 'cerrar'])->name('ofertas.cerrar');
 
         // HU13: listado de usuarios y bloqueo o desbloqueo (PAI-83 y PAI-84)
         Route::get('usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
         Route::patch('usuarios/{usuario}/bloquear', [UsuarioController::class, 'bloquear'])->name('usuarios.bloquear');
         Route::patch('usuarios/{usuario}/desbloquear', [UsuarioController::class, 'desbloquear'])->name('usuarios.desbloquear');
+
+        // HU15: indicadores de uso con filtro de fechas (PAI-90).
+        Route::get('estadisticas', [EstadisticaController::class, 'index'])->name('estadisticas');
     });
 
 // perfil público del feriante (solo validados)

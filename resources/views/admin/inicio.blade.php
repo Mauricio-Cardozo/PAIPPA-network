@@ -114,6 +114,30 @@
                         </div>
                     </a>
 
+                    <a href="{{ route('admin.usuarios.index') }}"
+                       class="block bg-white rounded-xl border border-gray-200 shadow-sm p-5 hover:border-paippa-green">
+                        <div class="flex justify-between items-center gap-4">
+                            <span class="font-medium text-gray-800">
+                                Usuarios
+                            </span>
+                            <span class="text-xs text-gray-500">
+                                Ver y bloquear
+                            </span>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('admin.estadisticas') }}"
+                       class="block bg-white rounded-xl border border-gray-200 shadow-sm p-5 hover:border-paippa-green">
+                        <div class="flex justify-between items-center gap-4">
+                            <span class="font-medium text-gray-800">
+                                Estadísticas
+                            </span>
+                            <span class="text-xs text-gray-500">
+                                Consultas y contactos
+                            </span>
+                        </div>
+                    </a>
+
                 </div>
 
             </section>

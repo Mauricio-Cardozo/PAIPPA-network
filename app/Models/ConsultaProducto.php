@@ -43,6 +43,32 @@ class ConsultaProducto extends Model
         return $user !== null ? 'user:'.$user->id : hash('sha256', $idSesion);
     }
 
+    /**
+     * PAI-89: registra una consulta por cada producto, como mucho una por día
+     * para el mismo visitante y origen. insertOrIgnore descarta el duplicado
+     * (el único de la tabla) sin tirar error ni contarlo dos veces.
+     *
+     * @param  iterable<int>  $productoIds
+     */
+    public static function registrar(iterable $productoIds, OrigenConsulta $origen, ?User $user, string $idSesion): void
+    {
+        $visitante = self::visitante($user, $idSesion);
+        $ahora = now();
+
+        $filas = collect($productoIds)->unique()->map(fn (int $productoId) => [
+            'producto_id' => $productoId,
+            'user_id' => $user?->id,
+            'visitante' => $visitante,
+            'origen' => $origen->value,
+            'fecha' => today()->toDateString(),
+            'created_at' => $ahora,
+        ])->values()->all();
+
+        if ($filas !== []) {
+            self::insertOrIgnore($filas);
+        }
+    }
+
     public function producto(): BelongsTo
     {
         return $this->belongsTo(Producto::class);

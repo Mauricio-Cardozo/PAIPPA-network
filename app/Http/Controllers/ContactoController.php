@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OrigenConsulta;
 use App\Models\ClicWhatsapp;
+use App\Models\ConsultaProducto;
 use App\Models\Oferta;
 use App\Support\WhatsApp;
 use Illuminate\Http\RedirectResponse;
@@ -32,6 +34,9 @@ class ContactoController extends Controller
             'feriante_id' => $oferta->feriante_id,
             'oferta_id' => $oferta->id,
         ]);
+
+        // PAI-89 (HU15): el contacto también cuenta como consulta del producto.
+        ConsultaProducto::registrar([$oferta->producto_id], OrigenConsulta::Whatsapp, $request->user(), $request->session()->getId());
 
         return redirect()->away($enlace);
     }
